@@ -58,7 +58,7 @@ The below section aims to explain every parameter of the configuration file
 | clean_local_copy       | global, backup | True     | Should the local copy be removed once uploaded to Swift                                     |
 | backup_filename        | backup         | None     | Name the backup file (will override any mode pattern)                                       |
 | backup_filename_prefix | backup         | None     | Prefix of the backup file name (mode pattern and backup_filename_suffix will be appended)   |
-| jackup_filename_suffix | backup         | None     | Suffix of the backup file name (backup_filename_prefix and mode pattern will be prepended ) |
+| backup_filename_suffix | backup         | None     | Suffix of the backup file name (backup_filename_prefix and mode pattern will be prepended ) |
 
 
 ### Database Parameters
@@ -67,3 +67,66 @@ The below section aims to explain every parameter of the configuration file
 |-----------------|----------------|------------|-----------------------------------------------------------------|
 | type            | global, backup | postgresql | Database type (available: postgres)                             |
 | pg_dump_options | global, backup | -Z9 -Fc    | Parameters to pass to the pg_dump command (PostgreSQL specific) |
+| database        | backup         | None       | Name of the database to backup                                  |
+| user            | global, backup | None       | User to connect to the database system                          |
+| password        | global, backup | None       | Password to connect to the database system                      |
+| host            | global, backup | None       | Host to connect to the database system                          |
+| port            | global, backup | None       | Port to connect to the database system                          |
+| subscriptions   | backup         | None       | Mode that this database is backed up when activated             |
+
+
+### Configuration file example
+
+```
+---
+os_username: username
+os_password: password
+os_tenant_name: tenant_name
+os_auth_url: auth_url
+create_container: True
+purge_container: False
+swift_container: backup
+swift_pseudofolder: example
+
+mode:
+  daily:
+    retention: 7
+    pattern: "%Y%m%d"
+  weekly:
+    retention: 4
+    pattern: "%Y%m%d-%U"
+  monthly:
+    retention: 6
+    pattern: "%Y%m"
+  now:
+    retention: 10
+    pattern: "%Y%m%d%H%M%S"
+
+type: postgresql
+pg_dump_options: -Z9 -Fc
+output_directory: /var/tmp
+clean_local_copy: True
+
+backups:
+  - database: swiftbackmeup
+    user: jdoe
+    password: apassword
+    host: 127.0.0.1
+    backup_filename_prefix: 'this_is_a_prefix'
+    backup_filename_suffix: '.dump.gz'
+    subscriptions:
+      - daily
+      - now
+      - monthly
+      - weekly
+
+  - database: wordpress
+    user: wordpress
+    password: wordpresspassword
+    host: 127.0.0.1
+    backup_filename_prefix: 'wordpress_'
+    backup_filename_suffix: '.dump.gz'
+    subscriptions:
+      - daily
+      - now
+```
