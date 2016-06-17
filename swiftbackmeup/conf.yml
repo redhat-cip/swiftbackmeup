@@ -1,0 +1,20 @@
+---
+user: jdoe
+host: 127.0.0.1
+password: ifany
+type: postgresql
+pg_dump_options: -Z9 -Fc
+swift_container: e
+swift_pseudofolder: e
+output_directory: /var/tmp
+
+backups:
+  - database: dci
+    user: dci
+    password: dci
+    swift_container: backup
+    swift_pseudo_folder: dci_backup
+    subscribe:
+      - daily
+      - now
+      - monthly
