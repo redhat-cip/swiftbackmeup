@@ -1,20 +1,31 @@
 ---
-user: jdoe
-host: 127.0.0.1
-password: ifany
 type: postgresql
 pg_dump_options: -Z9 -Fc
 swift_container: e
 swift_pseudofolder: e
 output_directory: /var/tmp
 
+mode:
+  daily:
+    retention: 7
+    pattern: "%Y%m%d"
+  weekly:
+    retention: 4
+    pattern: "%Y%m%d-%U"
+  monthly:
+    retention: 6
+    pattern: "%Y%m"
+  now:
+    retention: 10
+    pattern: "%Y%m%d%H%M%S"
+
 backups:
-  - database: dci
-    user: dci
-    password: dci
+  - database: swiftbackmeup
     swift_container: backup
     swift_pseudo_folder: dci_backup
-    subscribe:
+    backup_filename_suffix: ".dump.gz"
+    subscriptions:
       - daily
       - now
       - monthly
+      - weekly

@@ -19,7 +19,8 @@ import os
 import yaml
 
 _FIELDS = ['user', 'host', 'password', 'type', 'pg_dump_options',
-           'swift_container', 'swift_pseudofolder', 'subscribe']
+           'swift_container', 'swift_pseudofolder', 'subscribe',
+           'output_directory']
 
 def check_configuration_file_existence(configuration_file_path=None):
     """Check if the configuration file is present."""
@@ -69,9 +70,9 @@ def expand_configuration(configuration):
     for backup in configuration['backups']:
         for field in _FIELDS:
             if field not in backup:
-                if configuration[field]:
-                    backup[field] = configuration[field]
-                else:
+                if field not in configuration:
                     backup[field] = None
+                else:
+                    backup[field] = configuration[field]
 
     return configuration['backups']
