@@ -14,20 +14,30 @@
 # limitations under the License.
 
 from swiftbackmeup import configuration
+from swiftbackmeup import parser
+from swiftbackmeup import utils
 from swiftbackmeup.databases import postgresql
 
 def main():
 
+    options = parser.parse()
+
+
     conf = {
         'file_path': 'conf.yml'
     }
-    backups = configuration.load_configuration(conf)
-    backups = configuration.expand_configuration(backups)
+    global_configuration = configuration.load_configuration(conf)
+
+    backups = configuration.expand_configuration(global_configuration)
+    modes = global_configuration.get('mode')
 
     for backup in backups:
-        if backup['type'] == 'postgresql':
-            cur_backup = postgresql.PostgreSQL(backup)
-        cur_backup.run_backup()
-        #cur_backup.upload_to_swift()
+        if options.mode in backup['subscriptions']:
+            backup['filename'] = utils.build_filename(backup,
+                                                      modes[options.mode])
+            if backup['type'] == 'postgresql':
+                cur_backup = postgresql.PostgreSQL(backup)
+            cur_backup.run_backup()
+            #cur_backup.upload_to_swift()
             
         

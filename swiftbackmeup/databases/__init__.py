@@ -25,13 +25,18 @@ class Database(object):
         self.database = conf.get('database')
         self.swift_container = conf.get('swift_container')
         self.swift_pseudo_folder = conf.get('swift_pseudo_folder')
+        self.backup_file = conf.get('filename')
+
 
     def run_backup(self):
-        backup_file = open('/tmp/myoutput.out', 'w')
+        try:
+            backup_file_f = open(self.backup_file, 'w')
+        except IOError as exc:
+            raise
 
-        p = subprocess.Popen(self.command.split(), stdout=backup_file)
+        p = subprocess.Popen(self.command.split(), stdout=backup_file_f)
         p.wait()
-        backup_file.flush()
+        backup_file_f.flush()
 
     def upload_to_swift(self):
         print 'ok'
