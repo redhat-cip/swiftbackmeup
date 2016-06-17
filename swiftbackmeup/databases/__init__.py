@@ -14,23 +14,34 @@
 # limitations under the License.
 
 import subprocess
+import swiftclient
 
 class Database(object):
 
 
     def __init__(self, conf):
+        print conf
         self.host = conf.get('host')
         self.user = conf.get('user')
         self.password = conf.get('password')
         self.database = conf.get('database')
+
+        # Local backup file related
+        self.backup_file = conf.get('filename')
+        self.output_directory = conf.get('output_directory')
+
+        # Swift related
+        self.os_username = conf.get('os_username')
+        self.os_password = conf.get('os_password')
+        self.os_tenant_name = conf.get('os_tenant_name')
+        self.os_auth_url = conf.get('os_auth_url')
         self.swift_container = conf.get('swift_container')
         self.swift_pseudo_folder = conf.get('swift_pseudo_folder')
-        self.backup_file = conf.get('filename')
 
 
     def run_backup(self):
         try:
-            backup_file_f = open(self.backup_file, 'w')
+            backup_file_f = open('%s/%s' % (self.output_directory, self.backup_file), 'w')
         except IOError as exc:
             raise
 
@@ -39,4 +50,21 @@ class Database(object):
         backup_file_f.flush()
 
     def upload_to_swift(self):
-        print 'ok'
+        swift = swiftclient.client.Connection(auth_version='2',
+                                              user=self.os_username,
+                                              key=self.os_password,
+                                              tenant_name=self.os_tenant_name,
+                                              authurl=self.os_auth_url)
+
+        try:
+            swift.head_container(self.swift_container)
+        except swiftclient.exceptions.ClientException as exc:
+            if exc.http_reason == 'Not Found':
+                swift.put_container(self.swift_container)
+                
+        backup_file_content = open('%s/%s' % (self.output_directory,
+                                              self.backup_file), 'r').read()
+
+        swift.put_object(self.swift_container,
+                         '%s/%s' % (self.swift_pseudo_folder, self.backup_file),
+                         backup_file_content)

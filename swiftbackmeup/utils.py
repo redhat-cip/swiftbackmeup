@@ -17,12 +17,10 @@ import datetime
 
 def build_filename(backup, mode):
 
-    backup_path = '%s/' % backup['output_directory'] 
-
     if 'backup_filename' in backup:
-        backup_path += '/%s' % backup['backup_filename']
+        backup_path = backup['backup_filename']
     else:
-        backup_path += backup.get('backup_filename_prefix', backup['database'])
+        backup_path = backup.get('backup_filename_prefix', backup['database'])
         backup_path += datetime.datetime.now().strftime(mode['pattern'])
         if 'backup_filename_suffix' in backup:
             backup_path += '%s' % backup['backup_filename_suffix']

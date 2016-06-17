@@ -20,7 +20,8 @@ import yaml
 
 _FIELDS = ['user', 'host', 'password', 'type', 'pg_dump_options',
            'swift_container', 'swift_pseudofolder', 'subscribe',
-           'output_directory']
+           'output_directory', 'os_username', 'os_password',
+           'os_tenant_name', 'os_auth_url']
 
 def check_configuration_file_existence(configuration_file_path=None):
     """Check if the configuration file is present."""

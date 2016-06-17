@@ -38,6 +38,6 @@ def main():
             if backup['type'] == 'postgresql':
                 cur_backup = postgresql.PostgreSQL(backup)
             cur_backup.run_backup()
-            #cur_backup.upload_to_swift()
+            cur_backup.upload_to_swift()
             
         
