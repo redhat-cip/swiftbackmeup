@@ -3,10 +3,10 @@
 An utility that allows one to create database backups and upload them to
 OpenStack Swift
 
-## Objective
+## Goal
 
 The goal of `swiftbackmeup` is to be able to backup databases and upload
-those backup to Swift.
+those backups to Swift (OpenStack Object Store).
 
 `swiftbackmeup` is configuration driven. Every database that needs to be
 backed up are described in the configuration file
@@ -32,22 +32,98 @@ If one wants to trigger another mode:
 #> swiftbackmeup --mode monthly
 ```
 
+## Modes
+
+Modes are equivalent to tag the backup needs to be subscribed to.
+
+So within the configuration file, backups are 'subscribed' to tags;
+
+```
+backups:
+  - database: mydatabasenumberone
+    subscriptions:
+      - daily
+      - monthly
+      - now
+      - tag1
+      - mydatabasenumberone
+```
+
+This means that this backup will run only if `swiftbackmeup` is run with one
+of the tags lists in subscriptions
+
+Modes are defined in the configuration file, by default 4 modes come predefined.
+
+  * `daily`: If one wants to backup the database on a daily basis, with a default of 7 day of retention
+  * `weekly`: If one wants to backup the database on a weekly basis, with a default of 4 weeks of retention
+  * `monthly`: If one wants to backup the database on a monthly basis, with a default of 6 months of retention
+  * `now`: If one wants to backup the database at the moment t, with a default of 10 backup having the same name pattern.
+
+
+Modes understand for now only two parameters:
+
+  * `retention`: Number of days a backup should be kept, else purged.
+  * `pattern`: Pattern that will be used in datetime.format later.
+
+
+## Naming configuration
+
+There are various way the filename of the backup can be specified.
+
+  1. The backup is part of a tag with a matching pattern.
+
+
+By default the name will be the pattern. But one can specify 2 parameters
+`backup_filename_prefix` and `backup_filename_suffix` to actually have a
+meaningfull name.
+
+So name would be the equivalent of:
+
+```
+'%s%s%s' % (backup_filename_prefix, modes.pattern, backup_filename_suffix)
+```
+
+Example:
+
+```
+backups:
+  - database: mydatabase
+    subscriptions:
+      - daily
+    backup_filename_prefix: 'mydatabase_'
+    backup_filename_suffix: '.dump.gz'
+```
+
+  2. The backup is part of a tag with a matching pattern (or not)
+
+
+Whether the backup is part of a tag or not, one can override the final backup
+filename by specifying `backup_filename`
+
+```
+backups:
+  - database: mydatabase
+    subscriptions:
+      - daily
+    backup_filename: 'mydatabase_backup.dump.gz'
+```
+
 ## Configuration
 
 The below section aims to explain every parameter of the configuration file
 
 ### Swift Parameters
 
-| Parameter          | Scope          | Default | Description                                                       |
-|--------------------|----------------|---------|-------------------------------------------------------------------|
-| os_username        | global         | None    | OpenStack Username                                                |
-| os_password        | global         | None    | OpenStack Password                                                |
-| os_tenant_name     | global         | None    | OpenStack Tenant Name                                             |
-| os_auth_url        | global         | None    | OpenStack Authentication URL                                      |
-| create_container   | global, backup | True    | If the container does not exist, should it be created             |
-| purge_container    | global, backup | False   | Should the remote objects be purged                               |
-| swift_container    | global, backup | backup  | Name of the swift container on which to store the database backup |
-| swift_pseudofolder | global, backup | None    | If wanted, name of the pseudo folder                              |
+| Parameter           | Scope          | Default | Description                                                       |
+|---------------------|----------------|---------|-------------------------------------------------------------------|
+| os_username         | global         | None    | OpenStack Username                                                |
+| os_password         | global         | None    | OpenStack Password                                                |
+| os_tenant_name      | global         | None    | OpenStack Tenant Name                                             |
+| os_auth_url         | global         | None    | OpenStack Authentication URL                                      |
+| create_container    | global, backup | True    | If the container does not exist, should it be created             |
+| purge_container     | global, backup | False   | Should the remote objects be purged                               |
+| swift_container     | global, backup | backup  | Name of the swift container on which to store the database backup |
+| swift_pseudo_folder | global, backup | None    | If wanted, name of the pseudo folder                              |
 
 
 ### Filesystem Parameters
