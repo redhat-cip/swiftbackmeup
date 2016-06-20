@@ -36,3 +36,14 @@ backups:
       - now
       - monthly
       - weekly
+
+  - database: all
+    user: jdoe
+    password: apassword
+    host: AN.IP.ADDR.ESS
+    globals_only: True
+    schema_only: True
+    backup_filename_prefix: 'globals_schema_only'
+    backup_filename_suffix: '.dump.gz'
+    subscriptions:
+      - daily

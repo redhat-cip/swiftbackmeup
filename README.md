@@ -32,6 +32,12 @@ If one wants to trigger another mode:
 #> swiftbackmeup --mode monthly
 ```
 
+One can specify an alternative configuration file:
+
+```
+#> swiftbackmeup --conf /path/to/conf.yml
+```
+
 ## Modes
 
 Modes are equivalent to tag the backup needs to be subscribed to.
