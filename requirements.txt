@@ -1,4 +1,5 @@
 PyYAML
+python-keystoneclient
 python-swiftclient
 setuptools
 
