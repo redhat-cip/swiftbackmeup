@@ -1,0 +1,38 @@
+os_username: username
+os_password: password
+os_tenant_name: tenant
+os_auth_url: auth_url
+
+create_container: True
+purge_container: False
+swift_container: backup
+swift_pseudo_folder: example
+
+mode:
+  daily:
+    retention: 7
+    pattern: "%Y%m%d"
+  weekly:
+    retention: 4
+    pattern: "%Y%m%d-%U"
+  monthly:
+    retention: 6
+    pattern: "%Y%m"
+  now:
+    retention: 10
+    pattern: "%Y%m%d%H%M%S"
+
+type: postgresql
+pg_dump_options: -Z9 -Fc
+output_directory: /var/tmp
+clean_local_copy: True
+
+backups:
+  - database: swiftbackmeup
+    backup_filename_prefix: 'final_test'
+    backup_filename_suffix: '.dump.gz'
+    subscriptions:
+      - daily
+      - now
+      - monthly
+      - weekly
