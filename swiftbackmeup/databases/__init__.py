@@ -25,6 +25,7 @@ class Database(object):
         self.user = conf.get('user')
         self.password = conf.get('password')
         self.database = conf.get('database')
+        self.env = os.environ
 
         # Local backup file related
         self.backup_file = conf.get('filename')
@@ -45,7 +46,7 @@ class Database(object):
         except IOError as exc:
             raise
 
-        p = subprocess.Popen(self.command.split(), stdout=backup_file_f)
+        p = subprocess.Popen(self.command.split(), stdout=backup_file_f, env=self.env)
         p.wait()
         backup_file_f.flush()
 

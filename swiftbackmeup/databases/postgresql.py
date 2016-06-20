@@ -33,9 +33,12 @@ class PostgreSQL(databases.Database):
             command += ' -U %s' % self.user
 
         if self.host:
-            command += ' -H %s' % self.host
+            command += ' -h %s' % self.host
         
         if self.database:
             command += ' %s' % self.database
+
+        if self.password:
+            self.env['PGPASSWORD'] = self.password
 
         return command
