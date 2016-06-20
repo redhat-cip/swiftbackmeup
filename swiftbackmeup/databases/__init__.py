@@ -72,6 +72,11 @@ class Database(object):
         backup_file_content = open('%s/%s' % (self.output_directory,
                                               self.backup_file), 'r').read()
 
+        if self.swift_pseudo_folder is not None:
+            swift_path = '%s/%s' % (self.swift_pseudo_folder, self.backup_file)
+        else:
+            swift_path = self.backup_file
+
         swift.put_object(self.swift_container,
-                         '%s/%s' % (self.swift_pseudo_folder, self.backup_file),
+                         swift_path,
                          backup_file_content)
