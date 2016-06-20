@@ -6,7 +6,6 @@ OpenStack Swift
 ## TODO
 
  - [ ] Implement purge/retention feature
- - [ ] Implement MySQL database backend
  - [ ] Implement Swift as a plugin, and create an S3 alternative for the reference
 
 ## Goal
@@ -153,7 +152,8 @@ The below section aims to explain every parameter of the configuration file
 
 | Parameter       | Scope          | Default    | Description                                                     |
 |-----------------|----------------|------------|-----------------------------------------------------------------|
-| type            | global, backup | postgresql | Database type (available: postgres)                             |
+| type            | global, backup | postgresql | Database type (available: postgres, mariadb)                    |
+| dump_options    | global, backup | None       | Parameters to pass to the dump command                          |
 | database        | backup         | None       | Name of the database to backup                                  |
 | user            | global, backup | None       | User to connect to the database system                          |
 | password        | global, backup | None       | Password to connect to the database system                      |
@@ -239,6 +239,7 @@ backups:
     user: wordpress
     password: wordpresspassword
     host: 127.0.0.1
+    type: mariadb
     backup_filename_prefix: 'wordpress_'
     backup_filename_suffix: '.dump.gz'
     subscriptions:

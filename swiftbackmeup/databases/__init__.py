@@ -26,6 +26,7 @@ class Database(object):
         self.password = conf.get('password')
         self.database = conf.get('database')
         self.env = os.environ
+        self.dump_options = conf.get('dump_options')
 
         # Local backup file related
         self.backup_file = conf.get('filename')

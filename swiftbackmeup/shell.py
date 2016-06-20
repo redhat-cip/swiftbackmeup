@@ -16,6 +16,7 @@
 from swiftbackmeup import configuration
 from swiftbackmeup import parser
 from swiftbackmeup import utils
+from swiftbackmeup.databases import mariadb
 from swiftbackmeup.databases import postgresql
 
 
@@ -44,6 +45,8 @@ def main():
                                                       modes[options.mode])
             if backup['type'] == 'postgresql':
                 cur_backup = postgresql.PostgreSQL(backup)
+            elif backup['type'] == 'mariadb':
+                cur_backup = mariadb.MariaDB(backup)
             cur_backup.run_backup()
             cur_backup.upload_to_swift()
             if backup['clean_local_copy']:
