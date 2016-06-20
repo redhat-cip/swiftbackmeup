@@ -1,12 +1,12 @@
 # Copyright 2016 Yanis Guenane <yguenane@redhat.com>
 # Author: Yanis Guenane <yguenane@redhat.com>
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,21 +20,16 @@ import setuptools
 
 from swiftbackmeup import version
 
+CWD = os.path.dirname(os.path.abspath(__file__))
 
 def _get_requirements():
-    requirements_path = '%s/%s' % (os.path.dirname(os.path.abspath(__file__)),
-                                   'requirements.txt')
+    requirements_path = os.path.join(CWD, 'requirements.txt')
     with open(requirements_path, 'r') as f:
-        requirements = f.read()
-        # remove the dependencies which comes from url source because
-        # it's not supported by install_requires
-        return [dep for dep in requirements.split('\n')
-                if not dep.startswith('-e')]
+        return [dep.rstrip('\n') for dep in f if not dep.startswith('-e')]
 
 
 def _get_readme():
-    readme_path = '%s/%s' % (os.path.dirname(os.path.abspath(__file__)),
-                             'README.md')
+    readme_path = os.path.join(CWD, 'README.md')
 
     with codecs.open(readme_path, 'r', encoding='utf8') as f:
         return f.read()

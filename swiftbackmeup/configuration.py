@@ -1,20 +1,19 @@
 # Copyright 2016 Yanis Guenane <yguenane@redhat.com>
 # Author: Yanis Guenane <yguenane@redhat.com>
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from swiftbackmeup import exceptions
-
+import swiftbackmeup.exceptions as exc
 import os
 import yaml
 
@@ -25,24 +24,27 @@ _FIELDS = ['os_username', 'os_password', 'os_tenant_name', 'os_auth_url',
 
 
 
-def check_configuration_file_existence(configuration_file_path=None):
+def check_configuration_file_existence(conf_file=None):
     """Check if the configuration file is present."""
+    not_exist = 'File %s does not exist'
+    env_file = os.getenv('SWIFTBACKMEUP_CONFIGURATION')
+    etc_file = '/etc/swiftbackmeup.conf'
 
-    if configuration_file_path:
-        if not os.path.exists(configuration_file_path):
-            raise exceptions.ConfigurationExceptions('File %s does not exist' % configuration_file_path)
-        file_path = configuration_file_path
-    elif os.getenv('SWIFTBACKMEUP_CONFIGURATION'):
-        if not os.path.exists(os.getenv('SWIFTBACKMEUP_CONFIGURATION')):
-            raise exceptions.ConfigurationExceptions('File %s does not exist' % os.getenv('SWIFTBACKMEUP_CONFIGURATION'))
-        file_path = os.getenv('SWIFTBACKMEUP_CONFIGURATION')
+    if conf_file:
+        if not os.path.exists(conf_file):
+            raise exc.ConfigurationException(not_exist % conf_file)
+        file_path = conf_file
+    elif env_file:
+        if not os.path.exists(env_file):
+            raise exc.ConfigurationException(not_exist % env_file)
+        file_path = env_file
     else:
-        if not os.path.exists('/etc/swiftbackmeup.conf'):
-            raise exceptions.ConfigurationExceptions('File /etc/swiftbackmeup.conf does not exist')
-        file_path = '/etc/swiftbackmeup.conf'
+        if not os.path.exists(etc_file):
+            raise exc.ConfigurationException(not_exits % etc_file)
+        file_path = etc_file
 
     return file_path
-   
+
 
 def load_configuration(conf):
     """Load the swiftbackmeup configuration file."""
@@ -51,13 +53,13 @@ def load_configuration(conf):
 
     try:
         file_path_content = open(file_path, 'r').read()
-    except IOError as exc:
-        raise exceptions.ConfigurationExceptions(exc)
+    except IOError as e:
+        raise exc.ConfigurationException(e)
 
     try:
         conf = yaml.load(file_path_content)
-    except yaml.YAMLError as exc:
-        raise exceptions.ConfigurationExceptions(exc)
+    except yaml.YAMLError as e:
+        raise exc.ConfigurationException(e)
 
     return conf
 
@@ -65,40 +67,46 @@ def load_configuration(conf):
 def expand_configuration(configuration):
     """Fill up backups with defaults."""
 
+    fields = {field: configuration.get(field) for field in _FIELDS}
+
     for backup in configuration['backups']:
-        for field in _FIELDS:
-            if field not in backup or backup[field] is None:
-                if field not in configuration:
-                    backup[field] = None
-                else:
-                    backup[field] = configuration[field]
-
-    return configuration['backups']
+        _fields = fields.copy()
+        _fields.update(backup)
+        backup.update(_fields)
 
 
-def verify_mandatory_parameter(configuration):
+def verify_mandatory_parameter(conf):
     """Ensure that all mandatory parameters are in the configuration object."""
 
     # Swift Parameters
-    os_username = configuration.get('os_username', os.getenv('OS_USERNAME'))
-    os_password = configuration.get('os_password',os.getenv('OS_PASSWORD'))
-    os_tenant_name = configuration.get('os_tenant_name', os.getenv('OS_TENANT_NAME'))
-    os_auth_url = configuration.get('os_auth_url', os.getenv('OS_AUTH_URL'))
+    os_username = conf.get('os_username', os.getenv('OS_USERNAME'))
+    os_password = conf.get('os_password',os.getenv('OS_PASSWORD'))
+    os_tenant_name = conf.get('os_tenant_name', os.getenv('OS_TENANT_NAME'))
+    os_auth_url = conf.get('os_auth_url', os.getenv('OS_AUTH_URL'))
 
     if not (os_username and os_password and os_tenant_name and os_auth_url):
-        raise exceptions.ConfigurationExceptions('One of the following parameter is not configured: os_username, os_password, os_tenant_name, os_auth_url')
+        raise exc.ConfigurationException(
+            'One of the following parameter is not configured: os_username, '
+            'os_password, os_tenant_name, os_auth_url'
+        )
 
-    if (len([1 for backup in configuration['backups'] if 'swift_container' in backup]) != len(configuration['backups'])) and 'swift_container' not in configuration:
-        raise exceptions.ConfigurationExceptions('swift_container has not been specified for every backups and no global setting has been set')
+    backups = conf.get('backups')
 
+    if backups is None:
+        raise exc.ConfigurationException('No backups field encountered')
 
-    # Backup Parameters
-    if 'backups' not in configuration:
-        raise exceptions.ConfigurationExceptions('No backups field encountered')
+    if not len(conf['backups']):
+        raise exc.ConfigurationException('Backups has no backup configured')
 
-    if len(configuration['backups']) == 0:
-        raise exceptions.ConfigurationExceptions('Backups has no backup configured')
+    all_swift_container = all(['swift_container' in b for b in backups)
+    if not all_swift_conatiner and 'swift_container' not in conf:
+        raise exc.ConfigurationException(
+            'swift_container has not been specified for every backups and '
+            'no global setting has been set'
+        )
 
-    for backup in configuration['backups']:
+    for backup in conf['backups']:
         if 'database' not in backup:
-            raise exceptions.ConfigurationExceptions('A backup has the database field missing')
+            raise exc.ConfigurationException(
+                'A backup has the database field missing'
+            )
