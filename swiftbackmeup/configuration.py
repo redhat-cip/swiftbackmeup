@@ -30,15 +30,15 @@ def check_configuration_file_existence(configuration_file_path=None):
 
     if configuration_file_path:
         if not os.path.exists(configuration_file_path):
-            raise exceptions.ConfigurationExceptions()
+            raise exceptions.ConfigurationExceptions('File %s does not exist' % configuration_file_path)
         file_path = configuration_file_path
     elif os.getenv('SWIFTBACKMEUP_CONFIGURATION'):
         if not os.path.exists(os.getenv('SWIFTBACKMEUP_CONFIGURATION')):
-            raise exceptions.ConfigurationExceptions()
+            raise exceptions.ConfigurationExceptions('File %s does not exist' % os.getenv('SWIFTBACKMEUP_CONFIGURATION'))
         file_path = os.getenv('SWIFTBACKMEUP_CONFIGURATION')
     else:
         if not os.path.exists('/etc/swiftbackmeup.conf'):
-            raise exceptions.ConfigurationExceptions()
+            raise exceptions.ConfigurationExceptions('File /etc/swiftbackmeup.conf does not exist')
         file_path = '/etc/swiftbackmeup.conf'
 
     return file_path
@@ -47,7 +47,7 @@ def check_configuration_file_existence(configuration_file_path=None):
 def load_configuration(conf):
     """Load the swiftbackmeup configuration file."""
 
-    file_path = check_configuration_file_existence(conf['file_path'])
+    file_path = check_configuration_file_existence(conf.get('file_path'))
 
     try:
         file_path_content = open(file_path, 'r').read()
