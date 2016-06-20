@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#from swiftbackmeup import exceptions
+from swiftbackmeup import exceptions
 
 import os
 import yaml
@@ -22,6 +22,8 @@ _FIELDS = ['os_username', 'os_password', 'os_tenant_name', 'os_auth_url',
            'create_container', 'purge_container', 'swift_container',
            'swift_pseudofolder', 'output_directory', 'clean_local_copy',
            'type',' pg_dump_options', 'user', 'password', 'host', 'port']
+
+
 
 def check_configuration_file_existence(configuration_file_path=None):
     """Check if the configuration file is present."""
@@ -77,3 +79,28 @@ def expand_configuration(configuration):
                     backup[field] = configuration[field]
 
     return configuration['backups']
+
+
+def verify_mandatory_parameter(configuration):
+    """Ensure that all mandatory parameters are in the configuration object."""
+
+    # Swift Parameters
+    os_username = configuration.get('os_username', os.getenv('OS_USERNAME'))
+    os_password = configuration.get('os_password',os.getenv('OS_PASSWORD'))
+    os_tenant_name = configuration.get('os_tenant_name', os.getenv('OS_TENANT_NAME'))
+    os_auth_url = configuration.get('os_auth_url', os.getenv('OS_AUTH_URL'))
+
+    if not (os_username and os_password and os_tenant_name and os_auth_url):
+        raise exceptions.ConfigurationExceptions('One of the following parameter is not configured: os_username, os_password, os_tenant_name, os_auth_url')
+
+
+    # Backup Parameters
+    if 'backups' not in configuration:
+        raise exceptions.ConfigurationExceptions('No backups field encountered')
+
+    if len(configuration['backups']) == 0:
+        raise exceptions.ConfigurationExceptions('Backups has no backup configured')
+
+    for backup in configuration['backups']:
+        if 'database' not in backup:
+            raise exceptions.ConfigurationExceptions('A backup has the database field missing')
