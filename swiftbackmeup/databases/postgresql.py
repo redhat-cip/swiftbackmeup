@@ -14,19 +14,51 @@
 # limitations under the License.
 
 from swiftbackmeup import databases
+from swiftbackmeup import exceptions
 
+
+_PARAMS = {
+  'data_only': '-a',
+  'globals_only': '-g',
+  'roles_only': '-r',
+  'schema_only': '-s',
+  'tablespaces_only': '-t'
+}
 
 class PostgreSQL(databases.Database):
 
     def __init__(self, conf):
         super(PostgreSQL, self).__init__(conf)
         self.pg_dump_options = conf.get('pg_dump_options')
+        # pg_dumpall parameter
+        self.data_only = conf.get('data_only')
+        self.globals_only = conf.get('globals_only')
+        self.roles_only = conf.get('roles_only')
+        self.schema_only = conf.get('schema_only')
+        self.tablespaces_only = conf.get('tablespaces_only')
+
         self.command = self.build_command()
 
     def build_command(self):
-        command = 'pg_dump'
 
-        if self.pg_dump_options:
+        if self.database == 'all':
+            command = 'pg_dumpall'
+        else:
+            command = 'pg_dump'
+
+        # pg_dumpall *-only options management
+        if self.globals_only and self.roles_only:
+            raise exceptions.ConfigurationExceptions('%s: options globals_only and roles_only cannot be used together' % self.database)
+        elif self.globals_only and self.tablespaces_only:
+            raise  exceptions.ConfigurationExceptions('%s: options globals_only and tablespaces_only cannot be used together' % self.database)
+        elif self.tablespaces_only and self.roles_only:
+            raise  exceptions.ConfigurationExceptions('%s: options tablespaces_only and roles_only cannot be used together' % self.database)
+
+        for param in _PARAMS.keys():
+            if getattr(self, param, None):
+                command += ' %s' %  _PARAMS[param]
+
+        if self.pg_dump_options and not self.database == 'all':
             command += ' %s' % self.pg_dump_options
 
         if self.user:
@@ -35,7 +67,7 @@ class PostgreSQL(databases.Database):
         if self.host:
             command += ' -h %s' % self.host
         
-        if self.database:
+        if self.database and not self.database == 'all':
             command += ' %s' % self.database
 
         if self.password:
