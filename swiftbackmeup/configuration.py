@@ -20,7 +20,7 @@ import yaml
 
 _FIELDS = ['os_username', 'os_password', 'os_tenant_name', 'os_auth_url',
            'create_container', 'purge_container', 'swift_container',
-           'swift_pseudofolder', 'output_directory', 'clean_local_copy',
+           'swift_pseudo_folder', 'output_directory', 'clean_local_copy',
            'type',' pg_dump_options', 'user', 'password', 'host', 'port']
 
 
@@ -30,18 +30,15 @@ def check_configuration_file_existence(configuration_file_path=None):
 
     if configuration_file_path:
         if not os.path.exists(configuration_file_path):
-#            raise exceptions.ConfigurationExceptions()
-             pass
+            raise exceptions.ConfigurationExceptions()
         file_path = configuration_file_path
     elif os.getenv('SWIFTBACKMEUP_CONFIGURATION'):
         if not os.path.exists(os.getenv('SWIFTBACKMEUP_CONFIGURATION')):
-            #raise exceptions.ConfigurationExceptions()
-            pass
+            raise exceptions.ConfigurationExceptions()
         file_path = os.getenv('SWIFTBACKMEUP_CONFIGURATION')
     else:
         if not os.path.exists('/etc/swiftbackmeup.conf'):
-            #raise exceptions.ConfigurationExceptions()
-            pass
+            raise exceptions.ConfigurationExceptions()
         file_path = '/etc/swiftbackmeup.conf'
 
     return file_path
@@ -55,14 +52,12 @@ def load_configuration(conf):
     try:
         file_path_content = open(file_path, 'r').read()
     except IOError as exc:
-        #raise exceptions.ConfigurationExceptions(exc)
-        pass
+        raise exceptions.ConfigurationExceptions(exc)
 
     try:
         conf = yaml.load(file_path_content)
     except yaml.YAMLError as exc:
-        #raise exceptions.ConfigurationExceptions(exc)
-        pass
+        raise exceptions.ConfigurationExceptions(exc)
 
     return conf
 
@@ -72,7 +67,7 @@ def expand_configuration(configuration):
 
     for backup in configuration['backups']:
         for field in _FIELDS:
-            if field not in backup:
+            if field not in backup or backup[field] is None:
                 if field not in configuration:
                     backup[field] = None
                 else:
