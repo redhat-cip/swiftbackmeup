@@ -3,6 +3,11 @@
 An utility that allows one to create database backups and upload them to
 OpenStack Swift
 
+## TODO
+
+ - [ ] Implement purge/retention feature
+ - [ ] Implement MySQL database backend
+
 ## Goal
 
 The goal of `swiftbackmeup` is to be able to backup databases and upload
