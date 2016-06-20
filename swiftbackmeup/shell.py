@@ -40,5 +40,7 @@ def main():
                 cur_backup = postgresql.PostgreSQL(backup)
             cur_backup.run_backup()
             cur_backup.upload_to_swift()
+            if backup['clean_local_copy']:
+                cur_backup.clean_local_copy()
             
         

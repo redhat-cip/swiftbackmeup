@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import subprocess
 import swiftclient
 
@@ -48,6 +49,12 @@ class Database(object):
         p = subprocess.Popen(self.command.split(), stdout=backup_file_f)
         p.wait()
         backup_file_f.flush()
+
+    def clean_local_copy(self):
+        try:
+            os.remove('%s/%s' % (self.output_directory, self.backup_file))
+        except OSError:
+            raise
 
     def upload_to_swift(self):
         swift = swiftclient.client.Connection(auth_version='2',
