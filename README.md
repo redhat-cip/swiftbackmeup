@@ -142,13 +142,29 @@ The below section aims to explain every parameter of the configuration file
 | Parameter       | Scope          | Default    | Description                                                     |
 |-----------------|----------------|------------|-----------------------------------------------------------------|
 | type            | global, backup | postgresql | Database type (available: postgres)                             |
-| pg_dump_options | global, backup | -Z9 -Fc    | Parameters to pass to the pg_dump command (PostgreSQL specific) |
 | database        | backup         | None       | Name of the database to backup                                  |
 | user            | global, backup | None       | User to connect to the database system                          |
 | password        | global, backup | None       | Password to connect to the database system                      |
 | host            | global, backup | None       | Host to connect to the database system                          |
 | port            | global, backup | None       | Port to connect to the database system                          |
 | subscriptions   | backup         | None       | Mode that this database is backed up when activated             |
+
+
+#### PostgreSQL Specifics
+
+When backuping PostgreSQL databases there are two modes of working:
+
+  * `database: all`: This will make `swiftbackmeup` rely on the `pg_dumpall` program. It hence allows access to options like (`roles_only`, `globals_only`, etc...)
+  * `database: mydatabase`: This will make `swiftbackmeup` rely on the `pg_dump` program.
+
+| Parameter        | Scope               | Default | Description                                       |
+|------------------|---------------------|---------|---------------------------------------------------|
+| pg_dump_options  | global, backup      | -Z9 -Fc | Parameters to pass to the pg_dump command         |
+| data_only        | backup (the all db) | None    | Should --data-only be passed to pg_dumpall        |
+| globals_only     | backup (the all db) | None    | Should --globals-only be passed to pg_dumpall     |
+| roles_only       | backup (the all db) | None    | Should --roles-only be passed to pg_dumpall       |
+| schema_only      | backup (the all db) | None    | Should --schema-only be passed to pg_dumpall      |
+| tablespaces_only | backup (the all db) | None    | Should --tablespaces-only be passed to pg_dumpall |
 
 
 ### Configuration file example
@@ -195,6 +211,17 @@ backups:
       - now
       - monthly
       - weekly
+
+  - database: all
+    user: jdoe
+    password: apassword
+    host: 127.0.0.1
+    globals_only: True
+    schema_only: True
+    backup_filename_prefix: 'globals_schema_only'
+    backup_filename_suffix: '.dump.gz'
+    subscriptions:
+      - daily
 
   - database: wordpress
     user: wordpress
