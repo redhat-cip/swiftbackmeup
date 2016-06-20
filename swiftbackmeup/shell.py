@@ -20,7 +20,6 @@ from swiftbackmeup.databases import postgresql
 
 
 _CONF = {
-    'file_path': 'conf.yml',
     'clean_local_copy': True,
     'create_container': True,
     'purge_backup': False,
