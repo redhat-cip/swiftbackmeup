@@ -7,6 +7,7 @@ OpenStack Swift
 
  - [ ] Implement purge/retention feature
  - [ ] Implement MySQL database backend
+ - [ ] Implement Swift as a plugin, and create an S3 alternative for the reference
 
 ## Goal
 
