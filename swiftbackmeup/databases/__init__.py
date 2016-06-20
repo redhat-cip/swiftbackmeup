@@ -21,7 +21,6 @@ class Database(object):
 
 
     def __init__(self, conf):
-        print conf
         self.host = conf.get('host')
         self.user = conf.get('user')
         self.password = conf.get('password')
