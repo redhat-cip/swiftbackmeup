@@ -88,6 +88,9 @@ def verify_mandatory_parameter(configuration):
     if not (os_username and os_password and os_tenant_name and os_auth_url):
         raise exceptions.ConfigurationExceptions('One of the following parameter is not configured: os_username, os_password, os_tenant_name, os_auth_url')
 
+    if (len([1 for backup in configuration['backups'] if 'swift_container' in backup]) != len(configuration['backups'])) and 'swift_container' not in configuration:
+        raise exceptions.ConfigurationExceptions('swift_container has not been specified for every backups and no global setting has been set')
+
 
     # Backup Parameters
     if 'backups' not in configuration:
