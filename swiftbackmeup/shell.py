@@ -18,15 +18,22 @@ from swiftbackmeup import parser
 from swiftbackmeup import utils
 from swiftbackmeup.databases import postgresql
 
+
+_CONF = {
+    'file_path': 'conf.yml',
+    'clean_local_copy': True,
+    'create_container': True,
+    'purge_backup': False,
+}
+
 def main():
 
     options = parser.parse()
 
+    if options.conf:
+        _CONF['file_path'] = options.conf
 
-    conf = {
-        'file_path': 'conf.yml'
-    }
-    global_configuration = configuration.load_configuration(conf)
+    global_configuration = configuration.load_configuration(_CONF)
 
     configuration.verify_mandatory_parameter(global_configuration)
     backups = configuration.expand_configuration(global_configuration)
