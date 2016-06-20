@@ -28,6 +28,7 @@ def main():
     }
     global_configuration = configuration.load_configuration(conf)
 
+    configuration.verify_mandatory_parameter(global_configuration)
     backups = configuration.expand_configuration(global_configuration)
     modes = global_configuration.get('mode')
 
