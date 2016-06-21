@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from prettytable import PrettyTable
+
 import datetime
 
 def build_filename(backup, mode):
@@ -26,3 +28,11 @@ def build_filename(backup, mode):
             backup_path += '%s' % backup['backup_filename_suffix']
 
     return backup_path
+
+
+def output_informations(data):
+
+    x = PrettyTable()
+    for column in data:
+        x.add_column(column[0], column[1])
+    print x

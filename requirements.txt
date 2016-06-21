@@ -1,3 +1,4 @@
+PrettyTable
 PyYAML
 python-keystoneclient
 python-swiftclient
