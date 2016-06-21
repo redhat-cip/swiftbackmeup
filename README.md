@@ -150,6 +150,7 @@ The below section aims to explain every parameter of the configuration file
 | os_password         | global         | None    | OpenStack Password                                                |
 | os_tenant_name      | global         | None    | OpenStack Tenant Name                                             |
 | os_auth_url         | global         | None    | OpenStack Authentication URL                                      |
+| store_type          | global, backup | None    | The store type to upload backup to (available: swift)             |
 | create_container    | global, backup | True    | If the container does not exist, should it be created             |
 | purge_container     | global, backup | False   | Should the remote objects be purged                               |
 | swift_container     | global, backup | backup  | Name of the swift container on which to store the database backup |
@@ -206,6 +207,7 @@ os_username: username
 os_password: password
 os_tenant_name: tenant_name
 os_auth_url: auth_url
+store_type: swift
 create_container: True
 purge_container: False
 swift_container: backup
