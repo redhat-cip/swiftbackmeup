@@ -39,6 +39,17 @@ def main():
     backups = configuration.expand_configuration(global_configuration)
     modes = global_configuration.get('mode')
 
+    # If --databases has been specified, run the command only to
+    # a subset of the backups listed in the configuration file.
+    #
+    if isinstance(options.databases, list):
+        tmp_backups = []
+        for backup in backups:
+            if backup['database'] in options.databases:
+                tmp_backups.append(backup)
+        backups = tmp_backups
+
+
     for backup in backups:
         if options.mode in backup['subscriptions']:
             backup['filename'] = utils.build_filename(backup,
