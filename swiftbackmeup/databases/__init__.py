@@ -14,11 +14,11 @@
 # limitations under the License.
 
 from swiftbackmeup import utils
+from swiftbackmeup.stores import swift
 
+import exceptions
 import os
-import re
 import subprocess
-import swiftclient
 
 class Database(object):
 
@@ -38,14 +38,21 @@ class Database(object):
         self.backup_filename_suffix = conf.get('backup_filename_suffix')
         self.output_directory = conf.get('output_directory')
 
+        self.store_type = conf.get('store_type')
+        self.store = self.get_store(conf)
+
         # Swift related
-        self.os_username = conf.get('os_username')
-        self.os_password = conf.get('os_password')
-        self.os_tenant_name = conf.get('os_tenant_name')
-        self.os_auth_url = conf.get('os_auth_url')
         self.swift_container = conf.get('swift_container')
         self.swift_pseudo_folder = conf.get('swift_pseudo_folder')
-        self.swift_connection = self.get_swift_connection()
+
+
+    def get_store(self, conf):
+        if self.store_type == 'swift':
+            store = swift.Swift(conf)
+        else:
+            raise Exception('Unknown store_type: %s' % self.store_type)
+
+        return store
 
 
     def run_backup(self):
@@ -58,62 +65,22 @@ class Database(object):
         p.wait()
         backup_file_f.flush()
 
+
     def clean_local_copy(self):
         try:
             os.remove('%s/%s' % (self.output_directory, self.backup_file))
         except OSError:
             raise
 
-    def get_swift_connection(self):
-        return swiftclient.client.Connection(auth_version='2',
-                                             user=self.os_username,
-                                             key=self.os_password,
-                                             tenant_name=self.os_tenant_name,
-                                             authurl=self.os_auth_url)
 
     def list(self):
+        return self.store.list(self.database, self.swift_container,
+                               self.backup_filename, self.swift_pseudo_folder,
+                               self.backup_filename_prefix,
+                               self.backup_filename_suffix)
 
-        if self.swift_pseudo_folder:
-            if self.backup_filename:
-                backup_name_pattern = '%s/%s' % (self.swift_pseudo_folder,
-                                                 self.backup_filename)
-            else:
-                backup_name_pattern = '%s/%s.*%s' % (self.swift_pseudo_folder,
-                                                     self.backup_filename_prefix,
-                                                     self.backup_filename_suffix)
-        else:
-            if self.backup_filename:
-                backup_name_pattern = self.backup_filename
-            else:
-                backup_name_pattern = '%s.*%s' % (self.backup_filename_prefix,
-                                                  self.backup_filename_suffix)
-
-        resp, data = self.swift_connection.get_container(self.swift_container)
-
-        result = []
-        for backup in data:
-            m = re.search(backup_name_pattern, backup['name'])
-            if m:
-                result.append({'database': self.database,
-                               'filename': m.group(0),
-                               'last-modified': backup['last_modified']})
-        return result
 
     def upload(self):
-        try:
-            self.swift_connection.head_container(self.swift_container)
-        except swiftclient.exceptions.ClientException as exc:
-            if exc.http_reason == 'Not Found':
-                self.swift_connection.put_container(self.swift_container)
-                
-        backup_file_content = open('%s/%s' % (self.output_directory,
-                                              self.backup_file), 'r').read()
-
-        if self.swift_pseudo_folder is not None:
-            swift_path = '%s/%s' % (self.swift_pseudo_folder, self.backup_file)
-        else:
-            swift_path = self.backup_file
-
-        self.swift_connection.put_object(self.swift_container,
-                                         swift_path,
-                                         backup_file_content)
+        return self.store.upload(self.swift_container,
+                                 '%s/%s' % (self.output_directory, self.backup_file),
+                                 self.swift_pseudo_folder, True) #create_container
