@@ -24,5 +24,38 @@ def parse():
         help='Mode under which the script will be run')
     parser.add_argument('--conf',
         help='Path to configuration file')
+    parser.add_argument('--databases',
+        action='append',
+        nargs='*',
+        help='Databases list to apply action to')
 
-    return parser.parse_args()
+    options = parser.parse_args()
+    normalize_databases_parameter(options)
+
+    return options
+
+
+def normalize_databases_parameter(options):
+    """The databases parameters can have differents form based on how it
+       was passed as an input
+
+       swiftbackmeup --databases db1,db2
+       swiftbackmeup --databases db1 db2
+       swiftbackmeup --databases db1 --databases db2
+
+       This method aims to provide a plain array witch each element being
+       a database itself
+    """
+
+    if not isinstance(options.databases, list):
+        return
+
+    final_dbs = []
+    for dbs in options.databases:
+        for db in dbs:
+            if ',' in db:
+                final_dbs += db.split(',')
+            else:
+                final_dbs.append(db)
+
+    options.databases = final_dbs

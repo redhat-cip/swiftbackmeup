@@ -43,6 +43,12 @@ One can specify an alternative configuration file:
 #> swiftbackmeup --conf /path/to/conf.yml
 ```
 
+One can limit the databases that will be backedup :
+
+```
+#> swiftbackmeup --databases db1,mydb
+```
+
 ## Modes
 
 Modes are equivalent to tag the backup needs to be subscribed to.
