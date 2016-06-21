@@ -39,7 +39,9 @@ def check_configuration_file_existence(configuration_file_path=None):
         file_path = os.getenv('SWIFTBACKMEUP_CONFIGURATION')
     else:
         if not os.path.exists('/etc/swiftbackmeup.conf'):
-            raise exceptions.ConfigurationExceptions('File /etc/swiftbackmeup.conf does not exist')
+            raise exceptions.ConfigurationExceptions(
+                'File /etc/swiftbackmeup.conf does not exist (you could specify an alternate location using --conf)'
+            )
         file_path = '/etc/swiftbackmeup.conf'
 
     return file_path

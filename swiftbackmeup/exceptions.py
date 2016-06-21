@@ -14,7 +14,10 @@
 # limitations under the License.
 
 import exceptions
+import sys
 
 class ConfigurationExceptions(Exception):
-    pass
 
+    def __init__(self, message):
+        print message
+        sys.exit(1)
