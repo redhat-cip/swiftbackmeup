@@ -7,6 +7,8 @@ OpenStack Swift
 
  - [ ] Implement purge/retention feature
  - [ ] Implement Swift as a plugin, and create an S3 alternative for the reference
+ - [ ] Implement a function to list all available backups
+ - [ ] Implement a function to restore a backup
 
 ## Goal
 
