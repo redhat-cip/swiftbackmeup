@@ -16,6 +16,7 @@
 from swiftbackmeup import configuration
 from swiftbackmeup import parser
 from swiftbackmeup import utils
+from swiftbackmeup import lists
 from swiftbackmeup.databases import mariadb
 from swiftbackmeup.databases import postgresql
 
@@ -25,6 +26,8 @@ _CONF = {
     'create_container': True,
     'purge_backup': False,
 }
+
+_METHODS = ['list_backups', 'list_backups_remote']
 
 def main():
 
@@ -49,56 +52,28 @@ def main():
                 tmp_backups.append(backup)
         backups = tmp_backups
 
-    # If --list-backups has been specified, list the backups configured
-    # in the configuration file
+    
+    # If a --list-* options has been specified, call the proper method
+    # and exit
     #
-    if options.list_backups:
-        result = [['Database', []],
-                  ['Type', []],
-                  ['Host', []],
-                  ['Swift Container', []],
-                  ['Swift Pseudo-Folder', []],
-                  ['Subscriptions', []]]
-        for backup in backups:
-            if options.mode in backup['subscriptions']:
-                result[0][1].append(backup['database'])
-                result[1][1].append(backup['type'])
-                result[2][1].append(backup['host'])
-                result[3][1].append(backup['swift_container'])
-                result[4][1].append(backup['swift_pseudo_folder'])
-                result[5][1].append(', '.join(backup['subscriptions']))
-        utils.output_informations(result)
+    for method in _METHODS:
+        if getattr(options, method):
+            if method == 'list_backups':
+                lists.list_backups(backups, options)
+            elif method == 'list_backups_remote':
+                lists.list_backups_remote(backups, options, modes)
+            return
+ 
 
-        
-    if options.list_backups_remote:
-        result = [['Database', []],
-                  ['Backup file', []],
-                  ['Last Modified', []]]
-        for backup in backups:
-            if options.mode in backup['subscriptions']:
-                backup['filename'] = utils.build_filename(backup,
-                                                          modes[options.mode])
-                if backup['type'] == 'postgresql':
-                    cur_backup = postgresql.PostgreSQL(backup)
-                elif backup['type'] == 'mariadb':
-                    cur_backup = mariadb.MariaDB(backup)
-
-                for backup_item in cur_backup.list():
-                    result[0][1].append(backup_item['database'])
-                    result[1][1].append(backup_item['filename'])
-                    result[2][1].append(backup_item['last-modified'])
-        utils.output_informations(result)
-
-    if not options.list_backups and not options.list_backups_remote:
-        for backup in backups:
-            if options.mode in backup['subscriptions']:
-                backup['filename'] = utils.build_filename(backup,
-                                                          modes[options.mode])
-                if backup['type'] == 'postgresql':
-                    cur_backup = postgresql.PostgreSQL(backup)
-                elif backup['type'] == 'mariadb':
-                    cur_backup = mariadb.MariaDB(backup)
-                cur_backup.run_backup()
-                cur_backup.upload()
-                if backup['clean_local_copy']:
-                    cur_backup.clean_local_copy()
+    for backup in backups:
+        if options.mode in backup['subscriptions']:
+            backup['filename'] = utils.build_filename(backup,
+                                                      modes[options.mode])
+            if backup['type'] == 'postgresql':
+                cur_backup = postgresql.PostgreSQL(backup)
+            elif backup['type'] == 'mariadb':
+                cur_backup = mariadb.MariaDB(backup)
+            cur_backup.run_backup()
+            cur_backup.upload()
+            if backup['clean_local_copy']:
+                cur_backup.clean_local_copy()
