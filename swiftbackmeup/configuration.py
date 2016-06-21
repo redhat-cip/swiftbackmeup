@@ -21,7 +21,8 @@ import yaml
 _FIELDS = ['os_username', 'os_password', 'os_tenant_name', 'os_auth_url',
            'create_container', 'purge_container', 'swift_container',
            'swift_pseudo_folder', 'output_directory', 'clean_local_copy',
-           'type',' pg_dump_options', 'user', 'password', 'host', 'port']
+           'type',' pg_dump_options', 'user', 'password', 'host', 'port',
+           'store_type']
 
 
 

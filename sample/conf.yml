@@ -3,6 +3,7 @@ os_password: password
 os_tenant_name: tenant
 os_auth_url: auth_url
 
+store_type: swift
 create_container: True
 purge_container: False
 swift_container: backup
