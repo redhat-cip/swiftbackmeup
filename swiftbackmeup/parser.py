@@ -27,6 +27,9 @@ def parse():
     parser.add_argument('--list-backups',
         action='store_true',
         help='List all currently configured backups')
+    parser.add_argument('--list-backups-remote',
+        action='store_true',
+        help='List all remote backups')
     parser.add_argument('--databases',
         action='append',
         nargs='*',

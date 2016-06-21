@@ -13,7 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from swiftbackmeup import utils
+
 import os
+import re
 import subprocess
 import swiftclient
 
@@ -30,6 +33,9 @@ class Database(object):
 
         # Local backup file related
         self.backup_file = conf.get('filename')
+        self.backup_filename = conf.get('backup_filename')
+        self.backup_filename_prefix = conf.get('backup_filename_prefix')
+        self.backup_filename_suffix = conf.get('backup_filename_suffix')
         self.output_directory = conf.get('output_directory')
 
         # Swift related
@@ -39,6 +45,7 @@ class Database(object):
         self.os_auth_url = conf.get('os_auth_url')
         self.swift_container = conf.get('swift_container')
         self.swift_pseudo_folder = conf.get('swift_pseudo_folder')
+        self.swift_connection = self.get_swift_connection()
 
 
     def run_backup(self):
@@ -57,18 +64,47 @@ class Database(object):
         except OSError:
             raise
 
-    def upload_to_swift(self):
-        swift = swiftclient.client.Connection(auth_version='2',
-                                              user=self.os_username,
-                                              key=self.os_password,
-                                              tenant_name=self.os_tenant_name,
-                                              authurl=self.os_auth_url)
+    def get_swift_connection(self):
+        return swiftclient.client.Connection(auth_version='2',
+                                             user=self.os_username,
+                                             key=self.os_password,
+                                             tenant_name=self.os_tenant_name,
+                                             authurl=self.os_auth_url)
 
+    def list(self):
+
+        if self.swift_pseudo_folder:
+            if self.backup_filename:
+                backup_name_pattern = '%s/%s' % (self.swift_pseudo_folder,
+                                                 self.backup_filename)
+            else:
+                backup_name_pattern = '%s/%s.*%s' % (self.swift_pseudo_folder,
+                                                     self.backup_filename_prefix,
+                                                     self.backup_filename_suffix)
+        else:
+            if self.backup_filename:
+                backup_name_pattern = self.backup_filename
+            else:
+                backup_name_pattern = '%s.*%s' % (self.backup_filename_prefix,
+                                                  self.backup_filename_suffix)
+
+        resp, data = self.swift_connection.get_container(self.swift_container)
+
+        result = []
+        for backup in data:
+            m = re.search(backup_name_pattern, backup['name'])
+            if m:
+                result.append({'database': self.database,
+                               'filename': m.group(0),
+                               'last-modified': backup['last_modified']})
+        return result
+
+    def upload(self):
         try:
-            swift.head_container(self.swift_container)
+            self.swift_connection.head_container(self.swift_container)
         except swiftclient.exceptions.ClientException as exc:
             if exc.http_reason == 'Not Found':
-                swift.put_container(self.swift_container)
+                self.swift_connection.put_container(self.swift_container)
                 
         backup_file_content = open('%s/%s' % (self.output_directory,
                                               self.backup_file), 'r').read()
@@ -78,6 +114,6 @@ class Database(object):
         else:
             swift_path = self.backup_file
 
-        swift.put_object(self.swift_container,
-                         swift_path,
-                         backup_file_content)
+        self.swift_connection.put_object(self.swift_container,
+                                         swift_path,
+                                         backup_file_content)
