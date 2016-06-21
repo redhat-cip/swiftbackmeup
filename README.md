@@ -7,7 +7,6 @@ OpenStack Swift
 
  - [ ] Implement purge/retention feature
  - [ ] Implement Swift as a plugin, and create an S3 alternative for the reference
- - [ ] Implement a function to list all available backups
  - [ ] Implement a function to restore a backup
 
 ## Goal
@@ -49,6 +48,12 @@ One can list the configured backups in the configuration file:
 
 ```
 #> swiftbackmeup --list-backups
+```
+
+One can list the remote backups:
+
+```
+#> swiftbackmeup --list-backups-remote
 ```
 
 One can limit the databases that will be backedup :
