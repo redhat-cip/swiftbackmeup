@@ -24,6 +24,9 @@ def parse():
         help='Mode under which the script will be run')
     parser.add_argument('--conf',
         help='Path to configuration file')
+    parser.add_argument('--list-backups',
+        action='store_true',
+        help='List all currently configured backups')
     parser.add_argument('--databases',
         action='append',
         nargs='*',

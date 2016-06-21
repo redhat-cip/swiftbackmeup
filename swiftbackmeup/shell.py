@@ -49,18 +49,35 @@ def main():
                 tmp_backups.append(backup)
         backups = tmp_backups
 
+    # If --list-backups has been specified, list the backups configured
+    # in the configuration file
+    #
+    if options.list_backups:
+        result = [['Database', []],
+                  ['Type', []],
+                  ['Host', []],
+                  ['Swift Container', []],
+                  ['Swift Pseudo-Folder', []],
+                  ['Subscriptions', []]]
+        for backup in backups:
+            result[0][1].append(backup['database'])
+            result[1][1].append(backup['type'])
+            result[2][1].append(backup['host'])
+            result[3][1].append(backup['swift_container'])
+            result[4][1].append(backup['swift_pseudo_folder'])
+            result[5][1].append(', '.join(backup['subscriptions']))
+        utils.output_informations(result)
 
-    for backup in backups:
-        if options.mode in backup['subscriptions']:
-            backup['filename'] = utils.build_filename(backup,
-                                                      modes[options.mode])
-            if backup['type'] == 'postgresql':
-                cur_backup = postgresql.PostgreSQL(backup)
-            elif backup['type'] == 'mariadb':
-                cur_backup = mariadb.MariaDB(backup)
-            cur_backup.run_backup()
-            cur_backup.upload_to_swift()
-            if backup['clean_local_copy']:
-                cur_backup.clean_local_copy()
-            
-        
+    if not options.list_backups:
+        for backup in backups:
+            if options.mode in backup['subscriptions']:
+                backup['filename'] = utils.build_filename(backup,
+                                                          modes[options.mode])
+                if backup['type'] == 'postgresql':
+                    cur_backup = postgresql.PostgreSQL(backup)
+                elif backup['type'] == 'mariadb':
+                    cur_backup = mariadb.MariaDB(backup)
+                cur_backup.run_backup()
+                cur_backup.upload_to_swift()
+                if backup['clean_local_copy']:
+                    cur_backup.clean_local_copy()

@@ -45,6 +45,12 @@ One can specify an alternative configuration file:
 #> swiftbackmeup --conf /path/to/conf.yml
 ```
 
+One can list the configured backups in the configuration file:
+
+```
+#> swiftbackmeup --list-backups
+```
+
 One can limit the databases that will be backedup :
 
 ```
