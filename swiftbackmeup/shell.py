@@ -77,4 +77,10 @@ def main():
                 cur_backup = postgresql.PostgreSQL(backup)
             elif backup['type'] == 'mariadb':
                 cur_backup = mariadb.MariaDB(backup)
-            cur_backup.restore(options.version)
+            if options.force:
+                cur_backup.restore(options.version)
+            elif utils.query_yes_no('Are you sure you want to restore the database?',
+                                  default='no'):
+                cur_backup.restore(options.version)
+            else:
+                print 'Exiting without restoring the database'
