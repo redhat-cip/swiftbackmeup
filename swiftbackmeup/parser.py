@@ -38,12 +38,12 @@ def parse():
     backup_parser.add_argument('--mode',
         default='now',
         help='Mode under which the script will be run')
-    backup_parser.add_argument('--list-backups',
-        action='store_true',
-        help='List all currently configured backups')
-    backup_parser.add_argument('--list-backups-remote',
+    backup_parser.add_argument('--list',
         action='store_true',
         help='List all remote backups')
+    backup_parser.add_argument('--list-databases',
+        action='store_true',
+        help='List all currently configured backups')
     backup_parser.add_argument('--databases',
         action='append',
         nargs='*',

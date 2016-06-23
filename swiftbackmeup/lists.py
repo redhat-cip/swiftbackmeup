@@ -21,7 +21,7 @@ from swiftbackmeup.databases import postgresql
 # If --list-backups has been specified, list the backups configured
 # in the configuration file
 #
-def list_backups(backups, options):
+def list_databases(backups, options):
     result = [['Database', []],
               ['Type', []],
               ['Host', []],
@@ -42,7 +42,7 @@ def list_backups(backups, options):
 # If --list-backups-remote has been specified, list the backups available
 # on the specified store
 #
-def list_backups_remote(backups, options, modes):
+def list_remote_backups(backups, options, modes):
     result = [['Database', []],
               ['Backup file', []],
               ['Last Modified', []]]
