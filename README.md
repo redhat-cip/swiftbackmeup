@@ -190,7 +190,6 @@ When backuping PostgreSQL databases there are two modes of working:
 
 | Parameter        | Scope               | Default | Description                                       |
 |------------------|---------------------|---------|---------------------------------------------------|
-| pg_dump_options  | global, backup      | -Z9 -Fc | Parameters to pass to the pg_dump command         |
 | data_only        | backup (the all db) | None    | Should --data-only be passed to pg_dumpall        |
 | globals_only     | backup (the all db) | None    | Should --globals-only be passed to pg_dumpall     |
 | roles_only       | backup (the all db) | None    | Should --roles-only be passed to pg_dumpall       |
@@ -227,7 +226,7 @@ mode:
     pattern: "%Y%m%d%H%M%S"
 
 type: postgresql
-pg_dump_options: -Z9 -Fc
+dump_options: -Z9 -Fc
 output_directory: /var/tmp
 clean_local_copy: True
 
