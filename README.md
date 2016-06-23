@@ -6,8 +6,6 @@ OpenStack Swift
 ## TODO
 
  - [ ] Implement purge/retention feature
- - [ ] Implement Swift as a plugin, and create an S3 alternative for the reference
- - [ ] Implement a function to restore a backup
  - [ ] Add the possibility to encrypt data
 
 ## Goal
@@ -24,43 +22,43 @@ backed up are described in the configuration file
 The most simple way to run `swiftbackmeup`:
 
 ```
-#> swiftbackmeup
+#> swiftbackmeup backup
 ```
 
-This is equivalent to `swiftbackmeup --mode now`, it will look at the
+This is equivalent to `swiftbackmeup backup --mode now`, it will look at the
 configuration file located at `/etc/swiftbackmeup.conf`.
 
 
 If one wants to trigger another mode:
 
 ```
-#> swiftbackmeup --mode daily
+#> swiftbackmeup backup --mode daily
 #>
-#> swiftbackmeup --mode monthly
+#> swiftbackmeup backup --mode monthly
 ```
 
 One can specify an alternative configuration file:
 
 ```
-#> swiftbackmeup --conf /path/to/conf.yml
+#> swiftbackmeup --conf /path/to/conf.yml backup
 ```
 
 One can list the configured backups in the configuration file:
 
 ```
-#> swiftbackmeup --list-backups
+#> swiftbackmeup backup --list-databases
 ```
 
 One can list the remote backups:
 
 ```
-#> swiftbackmeup --list-backups-remote
+#> swiftbackmeup backup --list
 ```
 
 One can limit the databases that will be backedup :
 
 ```
-#> swiftbackmeup --databases db1,mydb
+#> swiftbackmeup backup --databases db1,mydb
 ```
 
 ## Modes
