@@ -40,40 +40,41 @@ def main():
 
     configuration.verify_mandatory_parameter(global_configuration)
     backups = configuration.expand_configuration(global_configuration)
+    backups = utils.filter_databases(options.databases, backups)
     modes = global_configuration.get('mode')
 
-    # If --databases has been specified, run the command only to
-    # a subset of the backups listed in the configuration file.
-    #
-    if isinstance(options.databases, list):
-        tmp_backups = []
-        for backup in backups:
-            if backup['database'] in options.databases:
-                tmp_backups.append(backup)
-        backups = tmp_backups
-
-    
-    # If a --list-* options has been specified, call the proper method
-    # and exit
-    #
-    for method in _METHODS:
-        if getattr(options, method):
-            if method == 'list_backups':
-                lists.list_backups(backups, options)
-            elif method == 'list_backups_remote':
-                lists.list_backups_remote(backups, options, modes)
-            return
+    # swiftbackmeup backup ...
+    if 'version' not in options:
+        # If a --list-* options has been specified, call the proper method
+        # and exit
+        #
+        for method in _METHODS:
+            if getattr(options, method):
+                if method == 'list_backups':
+                    lists.list_backups(backups, options)
+                elif method == 'list_backups_remote':
+                    lists.list_backups_remote(backups, options, modes)
+                return
  
 
-    for backup in backups:
-        if options.mode in backup['subscriptions']:
-            backup['filename'] = utils.build_filename(backup,
-                                                      modes[options.mode])
+        for backup in backups:
+            if options.mode in backup['subscriptions']:
+                backup['filename'] = utils.build_filename(backup,
+                                                          modes[options.mode])
+                if backup['type'] == 'postgresql':
+                    cur_backup = postgresql.PostgreSQL(backup)
+                elif backup['type'] == 'mariadb':
+                    cur_backup = mariadb.MariaDB(backup)
+                cur_backup.run()
+                cur_backup.upload()
+                if backup['clean_local_copy']:
+                    cur_backup.clean_local_copy()
+
+    # swiftbackmeup restore ...
+    else:
+        for backup in backups:
             if backup['type'] == 'postgresql':
                 cur_backup = postgresql.PostgreSQL(backup)
             elif backup['type'] == 'mariadb':
                 cur_backup = mariadb.MariaDB(backup)
-            cur_backup.run_backup()
-            cur_backup.upload()
-            if backup['clean_local_copy']:
-                cur_backup.clean_local_copy()
+            cur_backup.restore(options.version)

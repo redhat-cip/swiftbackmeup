@@ -15,6 +15,9 @@
 
 from swiftbackmeup import databases
 from swiftbackmeup import exceptions
+from swiftbackmeup import utils
+
+import subprocess
 
 
 _PARAMS = {
@@ -37,9 +40,43 @@ class PostgreSQL(databases.Database):
         self.schema_only = conf.get('schema_only')
         self.tablespaces_only = conf.get('tablespaces_only')
 
-        self.command = self.build_command()
+        self.command = self.build_dump_command()
 
-    def build_command(self):
+    def restore(self, backup_filename):
+        super(PostgreSQL, self).restore(backup_filename)
+        command = self.build_restore_command(backup_filename)
+        subprocess.Popen(command.split())
+
+    def build_restore_command(self, backup_filename):
+        file_path = '%s/%s' % (self.output_directory, backup_filename)
+        file_type = utils.get_file_type(file_path)
+
+        if 'ASCII text' in file_type:
+            command = 'psql -f %s' % file_path
+        elif 'PostgreSQL custom database dump' in file_type:
+            command = 'pg_restore --clean -d %s' % self.database
+        else:
+            raise exceptions.DatabaseExceptions('%s: Not a supported file type for PostgreSQL backups' % file_type)
+
+        if self.user:
+            command += ' -U %s' % self.user
+
+        if self.host:
+            command += ' -h %s' % self.host
+        
+        if self.password:
+            self.env['PGPASSWORD'] = self.password
+
+        if 'psql' in command:
+            command += ' %s' % self.database
+        
+        if 'pg_restore' in command:
+            command += ' %s' % file_path
+
+        return command
+
+
+    def build_dump_command(self):
 
         if self.database == 'all':
             command = 'pg_dumpall'

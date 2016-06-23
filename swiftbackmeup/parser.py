@@ -19,18 +19,32 @@ def parse():
 
     parser = argparse.ArgumentParser(description='swiftbackmeup')
 
-    parser.add_argument('--mode',
-        default='now',
-        help='Mode under which the script will be run')
     parser.add_argument('--conf',
         help='Path to configuration file')
-    parser.add_argument('--list-backups',
+
+    
+    subparsers = parser.add_subparsers(help='commands')
+
+    restore_parser = subparsers.add_parser('restore', help='restore local database from remote backups')
+    restore_parser.add_argument('--version',
+        default='latest',
+        help='name of the backup to restore')
+    restore_parser.add_argument('--databases',
+        action='append',
+        nargs='*',
+        help='Databases list to apply action to')
+
+    backup_parser = subparsers.add_parser('backup', help='backup local database')
+    backup_parser.add_argument('--mode',
+        default='now',
+        help='Mode under which the script will be run')
+    backup_parser.add_argument('--list-backups',
         action='store_true',
         help='List all currently configured backups')
-    parser.add_argument('--list-backups-remote',
+    backup_parser.add_argument('--list-backups-remote',
         action='store_true',
         help='List all remote backups')
-    parser.add_argument('--databases',
+    backup_parser.add_argument('--databases',
         action='append',
         nargs='*',
         help='Databases list to apply action to')
