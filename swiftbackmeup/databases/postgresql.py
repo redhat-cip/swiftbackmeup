@@ -32,7 +32,6 @@ class PostgreSQL(databases.Database):
 
     def __init__(self, conf):
         super(PostgreSQL, self).__init__(conf)
-        self.pg_dump_options = conf.get('pg_dump_options')
         # pg_dumpall parameter
         self.data_only = conf.get('data_only')
         self.globals_only = conf.get('globals_only')
@@ -95,8 +94,8 @@ class PostgreSQL(databases.Database):
             if getattr(self, param, None):
                 command += ' %s' %  _PARAMS[param]
 
-        if self.pg_dump_options and not self.database == 'all':
-            command += ' %s' % self.pg_dump_options
+        if self.dump_options and not self.database == 'all':
+            command += ' %s' % self.dump_options
 
         if self.user:
             command += ' -U %s' % self.user
