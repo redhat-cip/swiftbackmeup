@@ -27,7 +27,7 @@ _CONF = {
     'purge_backup': False,
 }
 
-_METHODS = ['list_backups', 'list_backups_remote']
+_METHODS = ['list', 'list_databases']
 
 def main():
 
@@ -50,10 +50,10 @@ def main():
         #
         for method in _METHODS:
             if getattr(options, method):
-                if method == 'list_backups':
-                    lists.list_backups(backups, options)
-                elif method == 'list_backups_remote':
-                    lists.list_backups_remote(backups, options, modes)
+                if method == 'list_databases':
+                    lists.list_databases(backups, options)
+                elif method == 'list':
+                    lists.list_remote_backups(backups, options, modes)
                 return
  
 
