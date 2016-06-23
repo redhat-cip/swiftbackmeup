@@ -60,3 +60,21 @@ def list_remote_backups(backups, options, modes):
                 result[1][1].append(backup_item['filename'])
                 result[2][1].append(backup_item['last-modified'])
     utils.output_informations(result)
+
+
+def list_purged_backups(backups, noop):
+    result = [['Database', []],
+              ['Backup file', []],
+              ['Last Modified', []],
+              ['Status', []]]
+
+    status = 'Purged'
+    if noop:
+        status += ' (noop)'
+
+    for backup in backups:
+        result[0][1].append(backup['database'])
+        result[1][1].append(backup['filename'])
+        result[2][1].append(backup['last-modified'])
+        result[3][1].append(status)
+    utils.output_informations(result)
