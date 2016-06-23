@@ -33,6 +33,9 @@ def parse():
         action='append',
         nargs='*',
         help='Databases list to apply action to')
+    restore_parser.add_argument('--force',
+        action='store_true',
+        help='Force answer yes to security question')
 
     backup_parser = subparsers.add_parser('backup', help='backup local database')
     backup_parser.add_argument('--mode',
