@@ -20,6 +20,10 @@ class Store(object):
         pass
 
 
+    def get(self):
+        pass
+
+
     def list(self):
         pass
 

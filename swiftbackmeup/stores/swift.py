@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from swiftbackmeup import stores
+from swiftbackmeup import exceptions
 
 import os
 import re
@@ -39,6 +40,22 @@ class Swift(stores.Store):
                                              key=self.os_password,
                                              tenant_name=self.os_tenant_name,
                                              authurl=self.os_auth_url)
+
+
+    def get(self, container, filename, output_directory):
+        try:
+            resp_headers, obj_contents = self.connection.get_object(container,
+                                                                    filename)
+        except swiftclient.exceptions.ClientException as exc:
+            if exc.http_reason == 'Not Found':
+                raise exceptions.StoreExceptions('%s: File not found in store' % filename)
+        
+        backup_directory = os.path.dirname('%s/%s' % (output_directory, filename))
+        if not os.path.exists(backup_directory):
+            os.makedirs(backup_directory)
+
+        with open('%s/%s' % (output_directory, filename), 'w') as backup:
+            backup.write(obj_contents)
 
 
     def list(self, database, container, filename=None, pseudo_folder=None,
