@@ -42,6 +42,13 @@ class Swift(stores.Store):
                                              authurl=self.os_auth_url)
 
 
+    def delete(self, container, filename):
+        try:
+            self.connection.delete_object(container, filename)
+        except swiftclient.exceptions.ClientException as exc:
+            raise exceptions.StoreExceptions('An error occured while deleting %s' % filename)
+   
+
     def get(self, container, filename, output_directory):
         try:
             resp_headers, obj_contents = self.connection.get_object(container,
