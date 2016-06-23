@@ -55,7 +55,7 @@ class Database(object):
         return store
 
 
-    def run_backup(self):
+    def run(self):
         try:
             backup_file_f = open('%s/%s' % (self.output_directory, self.backup_file), 'w')
         except IOError as exc:
@@ -64,6 +64,10 @@ class Database(object):
         p = subprocess.Popen(self.command.split(), stdout=backup_file_f, env=self.env)
         p.wait()
         backup_file_f.flush()
+
+
+    def restore(self, backup_filename):
+        self.store.get(self.swift_container, backup_filename, self.output_directory)
 
 
     def clean_local_copy(self):
@@ -84,3 +88,11 @@ class Database(object):
         return self.store.upload(self.swift_container,
                                  '%s/%s' % (self.output_directory, self.backup_file),
                                  self.swift_pseudo_folder, True) #create_container
+
+
+    def build_restore_command(self, backup_filename):
+        pass
+
+
+    def build_dump_command(self):
+        pass

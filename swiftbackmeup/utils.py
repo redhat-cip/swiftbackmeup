@@ -16,6 +16,7 @@
 from prettytable import PrettyTable
 
 import datetime
+import subprocess
 
 def build_filename(backup, mode):
 
@@ -36,3 +37,18 @@ def output_informations(data):
     for column in data:
         x.add_column(column[0], column[1])
     print x
+
+
+def filter_databases(databases, backups):
+    if isinstance(databases, list):
+        tmp_backups = []
+        for backup in backups:
+            if backup['database'] in databases:
+                tmp_backups.append(backup)
+        backups = tmp_backups
+    return backups
+
+
+def get_file_type(path):
+    p = subprocess.Popen(['file', path], stdout=subprocess.PIPE)
+    return p.communicate()[0]

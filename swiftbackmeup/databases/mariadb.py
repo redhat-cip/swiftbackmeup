@@ -15,14 +15,42 @@
 
 from swiftbackmeup import databases
 
+import subprocess
 
 class MariaDB(databases.Database):
 
     def __init__(self, conf):
         super(MariaDB, self).__init__(conf)
-        self.command = self.build_command()
+        self.command = self.build_dump_command()
 
-    def build_command(self):
+
+    def restore(self, backup_filename):
+        super(MariaDB, self).restore(backup_filename)
+        command = self.build_restore_command(backup_filename)
+
+        file_path = '%s/%s' % (self.output_directory, backup_filename)
+        backup_file_content = open(file_path, 'r').read()
+
+        p = subprocess.Popen(command.split(), stdin=subprocess.PIPE)
+        p.communicate(backup_file_content)
+
+
+    def build_restore_command(self, backup_filename):
+        command = 'mysql'
+
+        if self.user:
+            command += ' -u%s' % self.user
+
+        if self.host:
+            command += ' -h%s' % self.host
+
+        if self.password:
+            command += ' -p%s' % self.password
+
+        return command
+
+
+    def build_dump_command(self):
 
         command = 'mysqldump'
 
@@ -41,6 +69,6 @@ class MariaDB(databases.Database):
         if self.database == 'all':
             command += ' --all-databases'
         else:
-            command += ' %s' % self.database
+            command += ' --databases %s' % self.database
 
         return command
