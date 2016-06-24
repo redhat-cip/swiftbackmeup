@@ -13,11 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from swiftbackmeup import databases
 from swiftbackmeup import exceptions
 from swiftbackmeup import utils
-
-import subprocess
+from swiftbackmeup.items import databases
 
 
 _PARAMS = {
@@ -32,21 +30,16 @@ class PostgreSQL(databases.Database):
 
     def __init__(self, conf):
         super(PostgreSQL, self).__init__(conf)
-        # pg_dumpall parameter
         self.data_only = conf.get('data_only')
         self.globals_only = conf.get('globals_only')
         self.roles_only = conf.get('roles_only')
         self.schema_only = conf.get('schema_only')
         self.tablespaces_only = conf.get('tablespaces_only')
 
-        self.command = self.build_dump_command()
 
-    def restore(self, backup_filename):
-        super(PostgreSQL, self).restore(backup_filename)
-        command = self.build_restore_command(backup_filename)
-        subprocess.Popen(command.split())
-        if self.clean_local_copy:
-            super(PostgreSQL, self)._clean_local_copy(backup_filename)
+    def type(self):
+        return 'databases/postgresql'
+
 
     def build_restore_command(self, backup_filename):
         file_path = '%s/%s' % (self.output_directory, backup_filename)

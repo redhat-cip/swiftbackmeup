@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from swiftbackmeup import databases
+from swiftbackmeup.items import databases
 
 import subprocess
 
@@ -21,7 +21,10 @@ class MariaDB(databases.Database):
 
     def __init__(self, conf):
         super(MariaDB, self).__init__(conf)
-        self.command = self.build_dump_command()
+
+
+    def type(self):
+        return 'databases/mariadb'
 
 
     def restore(self, backup_filename):

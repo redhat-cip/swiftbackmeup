@@ -102,5 +102,5 @@ def verify_mandatory_parameter(configuration):
         raise exceptions.ConfigurationExceptions('Backups has no backup configured')
 
     for backup in configuration['backups']:
-        if 'database' not in backup:
-            raise exceptions.ConfigurationExceptions('A backup has the database field missing')
+        if 'name' not in backup:
+            raise exceptions.ConfigurationExceptions('A backup has the name field missing')

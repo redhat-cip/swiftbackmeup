@@ -24,7 +24,7 @@ def build_filename(backup, mode):
     if 'backup_filename' in backup:
         backup_path = backup['backup_filename']
     else:
-        backup_path = backup.get('backup_filename_prefix', backup['database'])
+        backup_path = backup.get('backup_filename_prefix', backup['name'])
         backup_path += datetime.datetime.now().strftime(mode['pattern'])
         if 'backup_filename_suffix' in backup:
             backup_path += '%s' % backup['backup_filename_suffix']
@@ -44,7 +44,7 @@ def filter_databases(databases, backups):
     if isinstance(databases, list):
         tmp_backups = []
         for backup in backups:
-            if backup['database'] in databases:
+            if backup['name'] in databases:
                 tmp_backups.append(backup)
         backups = tmp_backups
     return backups
