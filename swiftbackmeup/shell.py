@@ -17,8 +17,8 @@ from swiftbackmeup import configuration
 from swiftbackmeup import parser
 from swiftbackmeup import utils
 from swiftbackmeup import lists
-from swiftbackmeup.databases import mariadb
-from swiftbackmeup.databases import postgresql
+from swiftbackmeup.items.databases import *
+from swiftbackmeup.items.filesystems import *
 
 
 _CONF = {
@@ -27,7 +27,7 @@ _CONF = {
     'purge_backup': False,
 }
 
-_METHODS = ['list', 'list_databases']
+_METHODS = ['list', 'list_items']
 
 def main():
 
@@ -40,7 +40,7 @@ def main():
 
     configuration.verify_mandatory_parameter(global_configuration)
     backups = configuration.expand_configuration(global_configuration)
-    backups = utils.filter_databases(options.databases, backups)
+    backups = utils.filter_databases(options.items, backups)
     modes = global_configuration.get('mode')
 
     # swiftbackmeup restore ...
@@ -50,9 +50,11 @@ def main():
                 cur_backup = postgresql.PostgreSQL(backup)
             elif backup['type'] == 'mariadb':
                 cur_backup = mariadb.MariaDB(backup)
+            elif backup['type'] == 'file':
+                cur_backup = file.File(backup)
             if options.force:
                 cur_backup.restore(options.version)
-            elif utils.query_yes_no('Are you sure you want to restore the database?',
+            elif utils.query_yes_no('Are you sure you want to restore the backup?',
                                   default='no'):
                 cur_backup.restore(options.version)
             else:
@@ -76,6 +78,8 @@ def main():
                     cur_backup = postgresql.PostgreSQL(backup)
                 elif backup['type'] == 'mariadb':
                     cur_backup = mariadb.MariaDB(backup)
+                elif backup['type'] == 'file':
+                    cur_backup = file.File(backup)
                 purged_backups += cur_backup.purge(modes[options.mode], options.noop)
             lists.list_purged_backups(purged_backups, options.noop)
 
@@ -86,8 +90,8 @@ def main():
         #
         for method in _METHODS:
             if getattr(options, method):
-                if method == 'list_databases':
-                    lists.list_databases(backups, options)
+                if method == 'list_items':
+                    lists.list_items(backups, options)
                 elif method == 'list':
                     lists.list_remote_backups(backups, options, modes)
                 return
@@ -101,5 +105,7 @@ def main():
                     cur_backup = postgresql.PostgreSQL(backup)
                 elif backup['type'] == 'mariadb':
                     cur_backup = mariadb.MariaDB(backup)
+                elif backup['type'] == 'file':
+                    cur_backup = file.File(backup)
                 cur_backup.run()
                 cur_backup.upload()

@@ -65,7 +65,7 @@ class Swift(stores.Store):
             backup.write(obj_contents)
 
 
-    def list(self, database, container, filename=None, pseudo_folder=None,
+    def list(self, item, item_type, container, filename=None, pseudo_folder=None,
              filename_prefix=None, filename_suffix=None):
 
         if pseudo_folder:
@@ -73,15 +73,27 @@ class Swift(stores.Store):
                 backup_name_pattern = '%s/%s' % (pseudo_folder,
                                                  filename)
             else:
-                backup_name_pattern = '%s/%s.*%s' % (pseudo_folder,
-                                                     filename_prefix,
-                                                     filename_suffix)
+                backup_name_pattern = pseudo_folder
+                if filename_prefix and filename_suffix:
+                    backup_name_pattern += '/%s.*%s' % (filename_prefix,
+                                                        filename_suffix)
+                elif filename_prefix and not filename_suffix:
+                    backup_name_pattern += '/%s.*' % filename_prefix
+                elif not filename_prefix and filename_suffix:
+                    backup_name_pattern += '/.*%s' % filename_suffix
+
         else:
             if filename:
                 backup_name_pattern = filename
             else:
-                backup_name_pattern = '%s.*%s' % (filename_prefix,
-                                                  filename_suffix)
+                backup_name_pattern = pseudo_folder
+                if filename_prefix and filename_suffix:
+                    backup_name_pattern += '/%s.*%s' % (filename_prefix,
+                                                        filename_suffix)
+                elif filename_prefix and not filename_suffix:
+                    backup_name_pattern += '/%s.*' % filename_prefix
+                elif not filename_prefix and filename_suffix:
+                    backup_name_pattern += '/.*%s' % filename_suffix
 
         resp, data = self.connection.get_container(container)
 
@@ -89,7 +101,8 @@ class Swift(stores.Store):
         for backup in data:
             m = re.search(backup_name_pattern, backup['name'])
             if m:
-                result.append({'database': database,
+                result.append({'item': item,
+                               'type': item_type,
                                'filename': m.group(0),
                                'last-modified': backup['last_modified']})
         return result
