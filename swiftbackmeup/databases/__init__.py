@@ -39,6 +39,7 @@ class Database(object):
         self.backup_filename_prefix = conf.get('backup_filename_prefix')
         self.backup_filename_suffix = conf.get('backup_filename_suffix')
         self.output_directory = conf.get('output_directory')
+        self.clean_local_copy = conf.get('clean_local_copy')
 
         self.store_type = conf.get('store_type')
         self.store = self.get_store(conf)
@@ -98,9 +99,13 @@ class Database(object):
         return backups
 
 
-    def clean_local_copy(self):
+    def _clean_local_copy(self, backup_file=None):
+
+        if not backup_file:
+            self.backup_file
+
         try:
-            os.remove('%s/%s' % (self.output_directory, self.backup_file))
+            os.remove('%s/%s' % (self.output_directory, backup_file))
         except OSError:
             raise
 
@@ -113,9 +118,12 @@ class Database(object):
 
 
     def upload(self):
-        return self.store.upload(self.swift_container,
-                                 '%s/%s' % (self.output_directory, self.backup_file),
-                                 self.swift_pseudo_folder, True) #create_container
+       self.store.upload(self.swift_container,
+                         '%s/%s' % (self.output_directory, self.backup_file),
+                         self.swift_pseudo_folder, True) #create_container
+       if self.clean_local_copy:
+           self._clean_local_copy(self.backup_file)
+        
 
 
     def build_restore_command(self, backup_filename):

@@ -103,6 +103,3 @@ def main():
                     cur_backup = mariadb.MariaDB(backup)
                 cur_backup.run()
                 cur_backup.upload()
-                if backup['clean_local_copy']:
-                    cur_backup.clean_local_copy()
-
