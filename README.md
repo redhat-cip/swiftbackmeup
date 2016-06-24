@@ -1,12 +1,12 @@
 # swiftbackmeup
 
 An utility that allows one to create database backups and upload them to
-OpenStack Swift
+OpenStack Swift (Object Store).
 
 ## TODO
 
- - [ ] Implement purge/retention feature
  - [ ] Add the possibility to encrypt data
+ - [ ] Add support for Amazon S3
 
 ## Goal
 
@@ -14,52 +14,216 @@ The goal of `swiftbackmeup` is to be able to backup databases and upload
 those backups to Swift (OpenStack Object Store).
 
 `swiftbackmeup` is configuration driven. Every database that needs to be
-backed up are described in the configuration file
+backed up are described in the configuration file.
 
 
 ## How to run it
 
-The most simple way to run `swiftbackmeup`:
+`swiftbackmeup` has various operation modes:
 
-```
-#> swiftbackmeup backup
-```
-
-This is equivalent to `swiftbackmeup backup --mode now`, it will look at the
-configuration file located at `/etc/swiftbackmeup.conf`.
+  * `backup`: Allow one to backup databases
+  * `restore`: Allow one to restore backups from object store
+  * `purge`: Allow one to purge backups from object store
 
 
-If one wants to trigger another mode:
+`swiftbackmeup` is configuration driven. The configuratil file
+is (by order of priority):
 
-```
-#> swiftbackmeup backup --mode daily
-#>
-#> swiftbackmeup backup --mode monthly
-```
+  1. The one specified on the command line (`swiftbackmeup --conf /path/to/conf.yml`)
+  2. The one specified in the environment variable `$SWIFTBACKMEUP_CONFIGURATION`
+  3. The `/etc/swiftbackmeup.conf`
 
-One can specify an alternative configuration file:
 
-```
-#> swiftbackmeup --conf /path/to/conf.yml backup
-```
+### backup
 
-One can list the configured backups in the configuration file:
+This mode allows a user to backup items listed in the backups array in the configuration
+file.
 
-```
-#> swiftbackmeup backup --list-databases
-```
+#### `--databases`
 
-One can list the remote backups:
+This option allows one to limit for which backups item the script will be run.
+If the backups array has serveral items; ie. `mydb_prod`, `mydb_preprod`, `mydb_test`
+
+`swiftbackmeup backup` would backup all three of them
+
+`swiftbackmeup backup --databases mydb_prod` would only backup `mydb_prod`
+
+**Note**: this command is valid in combination with any other command such as `--list` and `--list-databases`
+
+
+#### `--list`
+
+This option allows one to list the remote backups for the items listed in the configuration
+file. It will by default list all the backups of every items. Items can be limited by using
+the `--databases` parameter.
 
 ```
 #> swiftbackmeup backup --list
++---------------+-----------------------------------------------------+----------------------------+
+|    Database   |                     Backup file                     |       Last Modified        |
++---------------+-----------------------------------------------------+----------------------------+
+|      db1      |           db1/db1_20160624054028.dump.sql           | 2016-06-24T09:40:29.719150 |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624054028.dump.sql | 2016-06-24T09:40:30.377840 |
++---------------+-----------------------------------------------------+----------------------------+
 ```
 
-One can limit the databases that will be backedup :
+```
+#> swiftbackmeup backup --list --databases db1
++---------------+-----------------------------------------------------+----------------------------+
+|    Database   |                     Backup file                     |       Last Modified        |
++---------------+-----------------------------------------------------+----------------------------+
+|      db1      |           db1/db1_20160624054028.dump.sql           | 2016-06-24T09:40:29.719150 |
++---------------+-----------------------------------------------------+----------------------------+
+```
+
+
+#### `--list-databases`
+
+This option allows one to list the items in the backups array listed in the configuration file.
+Items can be limited by using the `--databases` parameter.
 
 ```
-#> swiftbackmeup backup --databases db1,mydb
+#> swiftbackmeup backup --list-databases
++---------------+------------+-----------+-----------------+---------------------+-----------------------------+
+|    Database   |    Type    |    Host   | Swift Container | Swift Pseudo-Folder |        Subscriptions        |
++---------------+------------+-----------+-----------------+---------------------+-----------------------------+
+|      db1      |  mariadb   | 127.0.0.1 |      backup     |         db1         | daily, now, monthly, weekly |
+| swiftbackmeup | postgresql |   local   |      backup     |    swiftbackmeup    | daily, now, monthly, weekly |
++---------------+------------+-----------+-----------------+---------------------+-----------------------------+
 ```
+
+```
+#> swiftbackmeup backup --list-databases --databases db1
++---------------+------------+-----------+-----------------+---------------------+-----------------------------+
+|    Database   |    Type    |    Host   | Swift Container | Swift Pseudo-Folder |        Subscriptions        |
++---------------+------------+-----------+-----------------+---------------------+-----------------------------+
+|      db1      |  mariadb   | 127.0.0.1 |      backup     |         db1         | daily, now, monthly, weekly |
++---------------+------------+-----------+-----------------+---------------------+-----------------------------+
+```
+
+
+### purge
+
+This mode allows a user to purge items on the remote object store.
+
+The purge logic is based on the mode `retention` and `unit` parameters.
+
+```
+modes:
+  daily:
+    retention: 7
+    unit: day
+  now:
+    retention: 1
+    unit: item
+
+backups:
+  - database: db1
+    subscriptions:
+      - daily
+      - now
+```
+
+If a user executes `swiftbackmeup purge` only the last 1 item of the db1 backups
+on the remote store will be kept, the other will be purged (ie. --mode now is the
+default)
+
+
+If a user executs `swiftbackmeup purge --mode daily` the backups of the item older
+than 7 days will be purged.
+
+#### `--noop`
+
+This option allows one to list the items that would be purged if run without the `--noop` item.
+
+```
+#> swiftbackmeup backup --list
++---------------+-----------------------------------------------------+----------------------------+
+|    Database   |                     Backup file                     |       Last Modified        |
++---------------+-----------------------------------------------------+----------------------------+
+|      db1      |           db1/db1_20160624054028.dump.sql           | 2016-06-24T09:40:29.719150 |
+|      db1      |           db1/db1_20160624063610.dump.sql           | 2016-06-24T10:36:12.295490 |
+|      db1      |           db1/db1_20160624063613.dump.sql           | 2016-06-24T10:36:14.780210 |
+|      db1      |           db1/db1_20160624063615.dump.sql           | 2016-06-24T10:36:17.117850 |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624054028.dump.sql | 2016-06-24T09:40:30.377840 |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063611.dump.sql | 2016-06-24T10:36:13.216240 |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063614.dump.sql | 2016-06-24T10:36:15.799500 |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063616.dump.sql | 2016-06-24T10:36:17.923470 |
++---------------+-----------------------------------------------------+----------------------------+
+#> swiftbackmeup purge --noop --force
++---------------+-----------------------------------------------------+----------------------------+---------------+
+|    Database   |                     Backup file                     |       Last Modified        |     Status    |
++---------------+-----------------------------------------------------+----------------------------+---------------+
+|      db1      |           db1/db1_20160624054028.dump.sql           | 2016-06-24T09:40:29.719150 | Purged (noop) |
+|      db1      |           db1/db1_20160624063610.dump.sql           | 2016-06-24T10:36:12.295490 | Purged (noop) |
+|      db1      |           db1/db1_20160624063613.dump.sql           | 2016-06-24T10:36:14.780210 | Purged (noop) |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624054028.dump.sql | 2016-06-24T09:40:30.377840 | Purged (noop) |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063611.dump.sql | 2016-06-24T10:36:13.216240 | Purged (noop) |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063614.dump.sql | 2016-06-24T10:36:15.799500 | Purged (noop) |
++---------------+-----------------------------------------------------+----------------------------+---------------+
+```
+#### `--force`
+
+This options allows one not to have to answer the security question: "Are you sure you want to purge the backups?"
+
+```
+#> swiftbackmeup backup --list                                                                                                                 
++---------------+-----------------------------------------------------+----------------------------+
+|    Database   |                     Backup file                     |       Last Modified        |
++---------------+-----------------------------------------------------+----------------------------+
+|      db1      |           db1/db1_20160624054028.dump.sql           | 2016-06-24T09:40:29.719150 |
+|      db1      |           db1/db1_20160624063610.dump.sql           | 2016-06-24T10:36:12.295490 |
+|      db1      |           db1/db1_20160624063613.dump.sql           | 2016-06-24T10:36:14.780210 |
+|      db1      |           db1/db1_20160624063615.dump.sql           | 2016-06-24T10:36:17.117850 |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624054028.dump.sql | 2016-06-24T09:40:30.377840 |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063611.dump.sql | 2016-06-24T10:36:13.216240 |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063614.dump.sql | 2016-06-24T10:36:15.799500 |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063616.dump.sql | 2016-06-24T10:36:17.923470 |
++---------------+-----------------------------------------------------+----------------------------+
+#> swiftbackmeup purge --force
++---------------+-----------------------------------------------------+----------------------------+--------+
+|    Database   |                     Backup file                     |       Last Modified        | Status |
++---------------+-----------------------------------------------------+----------------------------+--------+
+|      db1      |           db1/db1_20160624054028.dump.sql           | 2016-06-24T09:40:29.719150 | Purged |
+|      db1      |           db1/db1_20160624063610.dump.sql           | 2016-06-24T10:36:12.295490 | Purged |
+|      db1      |           db1/db1_20160624063613.dump.sql           | 2016-06-24T10:36:14.780210 | Purged |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624054028.dump.sql | 2016-06-24T09:40:30.377840 | Purged |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063611.dump.sql | 2016-06-24T10:36:13.216240 | Purged |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063614.dump.sql | 2016-06-24T10:36:15.799500 | Purged |
++---------------+-----------------------------------------------------+----------------------------+--------+
+#> swiftbackmeup backup --list
++---------------+-----------------------------------------------------+----------------------------+
+|    Database   |                     Backup file                     |       Last Modified        |
++---------------+-----------------------------------------------------+----------------------------+
+|      db1      |           db1/db1_20160624063615.dump.sql           | 2016-06-24T10:36:17.117850 |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063616.dump.sql | 2016-06-24T10:36:17.923470 |
++---------------+-----------------------------------------------------+----------------------------+
+```
+
+
+### restore
+
+This mode allows a user to restore items from the remote object store.
+
+To work, it needs the name of the item to restore and the version from which to restore it from
+
+```
+#> swiftbackmeup backup --list
++---------------+-----------------------------------------------------+----------------------------+
+|    Database   |                     Backup file                     |       Last Modified        |
++---------------+-----------------------------------------------------+----------------------------+
+|      db1      |           db1/db1_20160624063615.dump.sql           | 2016-06-24T10:36:17.117850 |
+| swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063616.dump.sql | 2016-06-24T10:36:17.923470 |
++---------------+-----------------------------------------------------+----------------------------+
+#> swiftbackmeup restore --databases db1 --version db1/db1_20160624063615.dump.sql
+```
+
+The previous example will restore the database `db1` to the dump remotely stored as `db1/db1_20160624063615.dump.sql`
+
+#### `--force`
+
+This options allows one not to have to answer the security question: "Are you sure you want to restore the backup?"
+
 
 ## Modes
 
@@ -92,6 +256,7 @@ Modes are defined in the configuration file, by default 4 modes come predefined.
 Modes understand for now only two parameters:
 
   * `retention`: Number of days a backup should be kept, else purged.
+  * `unit`: The unit the retention represent. Possible value: `day`, `item`. Default `day`.
   * `pattern`: Pattern that will be used in datetime.format later.
 
 
