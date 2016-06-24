@@ -33,6 +33,8 @@ class MariaDB(databases.Database):
 
         p = subprocess.Popen(command.split(), stdin=subprocess.PIPE)
         p.communicate(backup_file_content)
+        if self.clean_local_copy:
+            super(MariaDB, self)._clean_local_copy(backup_filename)
 
 
     def build_restore_command(self, backup_filename):
