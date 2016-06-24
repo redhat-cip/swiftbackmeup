@@ -25,20 +25,20 @@ def parse():
 
     subparsers = parser.add_subparsers(help='commands')
 
-    backup_parser = subparsers.add_parser('backup', help='backup local database')
+    backup_parser = subparsers.add_parser('backup', help='backup configured items')
     backup_parser.add_argument('--mode',
         default='now',
         help='Mode under which the script will be run')
     backup_parser.add_argument('--list',
         action='store_true',
         help='List all remote backups')
-    backup_parser.add_argument('--list-databases',
+    backup_parser.add_argument('--list-items',
         action='store_true',
         help='List all currently configured backups')
-    backup_parser.add_argument('--databases',
+    backup_parser.add_argument('--items',
         action='append',
         nargs='*',
-        help='Databases list to backup')
+        help='Items list to backup')
 
     purge_parser = subparsers.add_parser('purge', help='purge stored backups')
     purge_parser.add_argument('--noop',
@@ -47,53 +47,53 @@ def parse():
     purge_parser.add_argument('--force',
         action='store_true',
         help='Force answer yes to security question')
-    purge_parser.add_argument('--databases',
+    purge_parser.add_argument('--items',
         action='append',
         nargs='*',
-        help='Databases backups to purge')
+        help='Items backups to purge')
     purge_parser.add_argument('--mode',
         default='now',
         help='Mode under which the script will be run')
 
-    restore_parser = subparsers.add_parser('restore', help='restore local database from remote backups')
+    restore_parser = subparsers.add_parser('restore', help='restore item from remote backups')
     restore_parser.add_argument('--version',
         default='latest',
         help='name of the backup to restore')
-    restore_parser.add_argument('--databases',
+    restore_parser.add_argument('--items',
         action='append',
         nargs='*',
-        help='Database to restore')
+        help='Items to restore')
     restore_parser.add_argument('--force',
         action='store_true',
         help='Force answer yes to security question')
 
     options = parser.parse_args()
-    normalize_databases_parameter(options)
+    normalize_items_parameter(options)
 
     return options
 
 
-def normalize_databases_parameter(options):
-    """The databases parameters can have differents form based on how it
+def normalize_items_parameter(options):
+    """The items parameters can have differents form based on how it
        was passed as an input
 
-       swiftbackmeup --databases db1,db2
-       swiftbackmeup --databases db1 db2
-       swiftbackmeup --databases db1 --databases db2
+       swiftbackmeup --items db1,db2
+       swiftbackmeup --items db1 db2
+       swiftbackmeup --items db1 --items db2
 
        This method aims to provide a plain array witch each element being
-       a database itself
+       a items itself
     """
 
-    if not isinstance(options.databases, list):
+    if not isinstance(options.items, list):
         return
 
     final_dbs = []
-    for dbs in options.databases:
+    for dbs in options.items:
         for db in dbs:
             if ',' in db:
                 final_dbs += db.split(',')
             else:
                 final_dbs.append(db)
 
-    options.databases = final_dbs
+    options.items = final_dbs

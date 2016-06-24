@@ -48,7 +48,7 @@ If the backups array has serveral items; ie. `mydb_prod`, `mydb_preprod`, `mydb_
 
 `swiftbackmeup backup --databases mydb_prod` would only backup `mydb_prod`
 
-**Note**: this command is valid in combination with any other command such as `--list` and `--list-databases`
+**Note**: this command is valid in combination with any other command such as `--list` and `--list-items
 
 
 #### `--list`
@@ -77,13 +77,13 @@ the `--databases` parameter.
 ```
 
 
-#### `--list-databases`
+#### `--list-items`
 
 This option allows one to list the items in the backups array listed in the configuration file.
 Items can be limited by using the `--databases` parameter.
 
 ```
-#> swiftbackmeup backup --list-databases
+#> swiftbackmeup backup --list-items
 +---------------+------------+-----------+-----------------+---------------------+-----------------------------+
 |    Database   |    Type    |    Host   | Swift Container | Swift Pseudo-Folder |        Subscriptions        |
 +---------------+------------+-----------+-----------------+---------------------+-----------------------------+
@@ -93,7 +93,7 @@ Items can be limited by using the `--databases` parameter.
 ```
 
 ```
-#> swiftbackmeup backup --list-databases --databases db1
+#> swiftbackmeup backup --list-items --databases db1
 +---------------+------------+-----------+-----------------+---------------------+-----------------------------+
 |    Database   |    Type    |    Host   | Swift Container | Swift Pseudo-Folder |        Subscriptions        |
 +---------------+------------+-----------+-----------------+---------------------+-----------------------------+
