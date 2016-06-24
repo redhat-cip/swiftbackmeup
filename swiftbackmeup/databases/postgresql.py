@@ -1,12 +1,12 @@
 # Copyright 2016 Yanis Guenane <yguenane@redhat.com>
 # Author: Yanis Guenane <yguenane@redhat.com>
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -64,13 +64,13 @@ class PostgreSQL(databases.Database):
 
         if self.host:
             command += ' -h %s' % self.host
-        
+
         if self.password:
             self.env['PGPASSWORD'] = self.password
 
         if 'psql' in command:
             command += ' %s' % self.database
-        
+
         if 'pg_restore' in command:
             command += ' %s' % file_path
 
@@ -104,7 +104,7 @@ class PostgreSQL(databases.Database):
 
         if self.host:
             command += ' -h %s' % self.host
-        
+
         if self.database and not self.database == 'all':
             command += ' %s' % self.database
 

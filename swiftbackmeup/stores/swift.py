@@ -1,12 +1,12 @@
 # Copyright 2016 Yanis Guenane <yguenane@redhat.com>
 # Author: Yanis Guenane <yguenane@redhat.com>
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #   http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,7 +47,7 @@ class Swift(stores.Store):
             self.connection.delete_object(container, filename)
         except swiftclient.exceptions.ClientException as exc:
             raise exceptions.StoreExceptions('An error occured while deleting %s' % filename)
-   
+
 
     def get(self, container, filename, output_directory):
         try:
@@ -56,7 +56,7 @@ class Swift(stores.Store):
         except swiftclient.exceptions.ClientException as exc:
             if exc.http_reason == 'Not Found':
                 raise exceptions.StoreExceptions('%s: File not found in store' % filename)
-        
+
         backup_directory = os.path.dirname('%s/%s' % (output_directory, filename))
         if not os.path.exists(backup_directory):
             os.makedirs(backup_directory)
@@ -102,7 +102,7 @@ class Swift(stores.Store):
         except swiftclient.exceptions.ClientException as exc:
             if exc.http_reason == 'Not Found' and create_container:
                 self.connection.put_container(container)
-                
+
         backup_file_content = open(file_path, 'r').read()
 
         if pseudo_folder:
