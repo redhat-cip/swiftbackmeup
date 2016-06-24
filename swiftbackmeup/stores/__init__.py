@@ -20,6 +20,10 @@ class Store(object):
         pass
 
 
+    def delete(self):
+        pass
+
+
     def get(self):
         pass
 

@@ -43,8 +43,44 @@ def main():
     backups = utils.filter_databases(options.databases, backups)
     modes = global_configuration.get('mode')
 
+    # swiftbackmeup restore ...
+    if 'version' in options:
+        for backup in backups:
+            if backup['type'] == 'postgresql':
+                cur_backup = postgresql.PostgreSQL(backup)
+            elif backup['type'] == 'mariadb':
+                cur_backup = mariadb.MariaDB(backup)
+            if options.force:
+                cur_backup.restore(options.version)
+            elif utils.query_yes_no('Are you sure you want to restore the database?',
+                                  default='no'):
+                cur_backup.restore(options.version)
+            else:
+                print 'Exiting without restoring the database'
+
+    # swiftbackmeup purge ...
+    elif 'noop' in options:
+        purge = False
+        purged_backups = []
+
+        if options.force:
+            purge = True
+        elif not options.force and utils.query_yes_no('Are you sure you want to purge the backups?',
+                                                    default='no'):
+            purge = True
+        else:
+            print 'Exiting without purging the backups'
+        if purge:
+            for backup in backups:
+                if backup['type'] == 'postgresql':
+                    cur_backup = postgresql.PostgreSQL(backup)
+                elif backup['type'] == 'mariadb':
+                    cur_backup = mariadb.MariaDB(backup)
+                purged_backups += cur_backup.purge(modes[options.mode], options.noop)
+            lists.list_purged_backups(purged_backups, options.noop)
+
     # swiftbackmeup backup ...
-    if 'version' not in options:
+    else:
         # If a --list-* options has been specified, call the proper method
         # and exit
         #
@@ -70,17 +106,3 @@ def main():
                 if backup['clean_local_copy']:
                     cur_backup.clean_local_copy()
 
-    # swiftbackmeup restore ...
-    else:
-        for backup in backups:
-            if backup['type'] == 'postgresql':
-                cur_backup = postgresql.PostgreSQL(backup)
-            elif backup['type'] == 'mariadb':
-                cur_backup = mariadb.MariaDB(backup)
-            if options.force:
-                cur_backup.restore(options.version)
-            elif utils.query_yes_no('Are you sure you want to restore the database?',
-                                  default='no'):
-                cur_backup.restore(options.version)
-            else:
-                print 'Exiting without restoring the database'

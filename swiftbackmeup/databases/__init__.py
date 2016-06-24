@@ -16,6 +16,8 @@
 from swiftbackmeup import utils
 from swiftbackmeup.stores import swift
 
+
+import datetime
 import exceptions
 import os
 import subprocess
@@ -68,6 +70,32 @@ class Database(object):
 
     def restore(self, backup_filename):
         self.store.get(self.swift_container, backup_filename, self.output_directory)
+
+
+    def purge(self, mode, noop):
+        backups = self.store.list(self.database, self.swift_container,
+                                  self.backup_filename,
+                                  self.swift_pseudo_folder,
+                                  self.backup_filename_prefix,
+                                  self.backup_filename_suffix)
+
+        if mode['unit'] == 'item':
+            if len(backups) > mode['retention']:
+                backups = backups[:-mode['retention']]
+            else:
+                backups = []
+        else:
+            tmp_backup = []
+            for backup in backups:
+                if (datetime.datetime.now() - datetime.datetime.strptime(backup['last-modified'], '%Y-%m-%dT%H:%M:%S.%f')).days >= mode['retention']:
+                    tmp_backup.append(backup)
+            backups = tmp_backup
+
+        if not noop:
+            for backup in backups:
+                self.store.delete(self.swift_container, backup['filename'])
+
+        return backups
 
 
     def clean_local_copy(self):
