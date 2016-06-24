@@ -45,6 +45,8 @@ class PostgreSQL(databases.Database):
         super(PostgreSQL, self).restore(backup_filename)
         command = self.build_restore_command(backup_filename)
         subprocess.Popen(command.split())
+        if self.clean_local_copy:
+            super(PostgreSQL, self)._clean_local_copy(backup_filename)
 
     def build_restore_command(self, backup_filename):
         file_path = '%s/%s' % (self.output_directory, backup_filename)
