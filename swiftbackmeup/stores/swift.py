@@ -86,14 +86,14 @@ class Swift(stores.Store):
             if filename:
                 backup_name_pattern = filename
             else:
-                backup_name_pattern = pseudo_folder or ''
+                backup_name_pattern = ''
                 if filename_prefix and filename_suffix:
-                    backup_name_pattern += '/%s.*%s' % (filename_prefix,
+                    backup_name_pattern += '%s.*%s' % (filename_prefix,
                                                         filename_suffix)
                 elif filename_prefix and not filename_suffix:
-                    backup_name_pattern += '/%s.*' % filename_prefix
+                    backup_name_pattern += '%s.*' % filename_prefix
                 elif not filename_prefix and filename_suffix:
-                    backup_name_pattern += '/.*%s' % filename_suffix
+                    backup_name_pattern += '.*%s' % filename_suffix
 
         resp, data = self.connection.get_container(container)
 

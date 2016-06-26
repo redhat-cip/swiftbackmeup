@@ -32,16 +32,8 @@ class MariaDB(databases.Database):
 
 
     def restore(self, backup_filename):
-        super(MariaDB, self).restore(backup_filename)
-        command = self.build_restore_command(backup_filename)
-
-        file_path = '%s/%s' % (self.output_directory, backup_filename)
-        backup_file_content = open(file_path, 'r').read()
-
-        p = subprocess.Popen(command.split(), stdin=subprocess.PIPE)
-        p.communicate(backup_file_content)
-        if self.clean_local_copy:
-            super(MariaDB, self)._clean_local_copy(backup_filename)
+        super(MariaDB, self).restore(backup_filename,
+                                     with_intermediate_file=True)
 
 
     def build_restore_command(self, backup_filename):
