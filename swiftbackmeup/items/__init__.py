@@ -84,14 +84,26 @@ class Item(object):
                                  stdout=FNULL, stderr=subprocess.STDOUT)
 
 
-    def restore(self, backup_filename):
+    def restore(self, backup_filename,with_intermediate_file=False):
         """Method to restore the backup."""
 
         self.store.get(self.swift_container, backup_filename,
                        self.output_directory)
         command = self.build_restore_command(backup_filename)
-        FNULL = open(os.devnull, 'w')
-        subprocess.Popen(command.split(), stdout=FNULL, stderr=subprocess.STDOUT)
+
+
+        if with_intermediate_file:
+            file_path = '%s/%s' % (self.output_directory, backup_filename)
+            backup_file_content = open(file_path, 'r').read()
+
+            p = subprocess.Popen(command.split(), stdin=subprocess.PIPE)
+            p.communicate(backup_file_content)
+        else:
+            FNULL = open(os.devnull, 'w')
+            p = subprocess.Popen(command.split(), stdout=FNULL,
+                                 stderr=subprocess.STDOUT)
+            p.wait()
+
         if self.clean_local_copy:
             self._clean_local_copy(backup_filename)
 

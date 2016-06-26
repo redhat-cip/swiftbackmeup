@@ -46,7 +46,7 @@ class Git(filesystems.Filesystem):
         try:
             shutil.rmtree(self.path)
         except OSError:
-            raise
+            pass
  
         command = 'git clone %s/%s -b master %s' % (self.output_directory,
                                                     backup_filename,
