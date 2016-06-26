@@ -27,6 +27,10 @@ class MariaDB(databases.Database):
         return 'databases/mariadb'
 
 
+    def run(self):
+        super(MariaDB, self).run(with_intermediate_file=True)
+
+
     def restore(self, backup_filename):
         super(MariaDB, self).restore(backup_filename)
         command = self.build_restore_command(backup_filename)

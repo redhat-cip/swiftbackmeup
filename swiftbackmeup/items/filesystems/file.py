@@ -27,6 +27,10 @@ class File(filesystems.Filesystem):
         return 'filesystems/file'
 
 
+    def run(self):
+        super(File, self).run(with_intermediate_file=True)
+
+
     def build_dump_command(self):
         return 'cat %s' % self.path
 
