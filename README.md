@@ -1,6 +1,6 @@
 # swiftbackmeup
 
-An utility that allows one to create database backups and upload them to
+An utility that allows one to create items backups and upload them to
 OpenStack Swift (Object Store).
 
 ## TODO
@@ -10,10 +10,10 @@ OpenStack Swift (Object Store).
 
 ## Goal
 
-The goal of `swiftbackmeup` is to be able to backup databases and upload
+The goal of `swiftbackmeup` is to be able to backup items and upload
 those backups to Swift (OpenStack Object Store).
 
-`swiftbackmeup` is configuration driven. Every database that needs to be
+`swiftbackmeup` is configuration driven. Every item that needs to be
 backed up are described in the configuration file.
 
 
@@ -21,12 +21,12 @@ backed up are described in the configuration file.
 
 `swiftbackmeup` has various operation modes:
 
-  * `backup`: Allow one to backup databases
+  * `backup`: Allow one to backup items
   * `restore`: Allow one to restore backups from object store
   * `purge`: Allow one to purge backups from object store
 
 
-`swiftbackmeup` is configuration driven. The configuratil file
+`swiftbackmeup` is configuration driven. The configuration file
 is (by order of priority):
 
   1. The one specified on the command line (`swiftbackmeup --conf /path/to/conf.yml`)
@@ -39,14 +39,14 @@ is (by order of priority):
 This mode allows a user to backup items listed in the backups array in the configuration
 file.
 
-#### `--databases`
+#### `--items`
 
 This option allows one to limit for which backups item the script will be run.
 If the backups array has serveral items; ie. `mydb_prod`, `mydb_preprod`, `mydb_test`
 
 `swiftbackmeup backup` would backup all three of them
 
-`swiftbackmeup backup --databases mydb_prod` would only backup `mydb_prod`
+`swiftbackmeup backup --items mydb_prod` would only backup `mydb_prod`
 
 **Note**: this command is valid in combination with any other command such as `--list` and `--list-items
 
@@ -55,12 +55,12 @@ If the backups array has serveral items; ie. `mydb_prod`, `mydb_preprod`, `mydb_
 
 This option allows one to list the remote backups for the items listed in the configuration
 file. It will by default list all the backups of every items. Items can be limited by using
-the `--databases` parameter.
+the `--items` parameter.
 
 ```
 #> swiftbackmeup backup --list
 +---------------+-----------------------------------------------------+----------------------------+
-|    Database   |                     Backup file                     |       Last Modified        |
+|      Item     |                     Backup file                     |       Last Modified        |
 +---------------+-----------------------------------------------------+----------------------------+
 |      db1      |           db1/db1_20160624054028.dump.sql           | 2016-06-24T09:40:29.719150 |
 | swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624054028.dump.sql | 2016-06-24T09:40:30.377840 |
@@ -68,9 +68,9 @@ the `--databases` parameter.
 ```
 
 ```
-#> swiftbackmeup backup --list --databases db1
+#> swiftbackmeup backup --list --items db1
 +---------------+-----------------------------------------------------+----------------------------+
-|    Database   |                     Backup file                     |       Last Modified        |
+|      Item     |                     Backup file                     |       Last Modified        |
 +---------------+-----------------------------------------------------+----------------------------+
 |      db1      |           db1/db1_20160624054028.dump.sql           | 2016-06-24T09:40:29.719150 |
 +---------------+-----------------------------------------------------+----------------------------+
@@ -80,25 +80,25 @@ the `--databases` parameter.
 #### `--list-items`
 
 This option allows one to list the items in the backups array listed in the configuration file.
-Items can be limited by using the `--databases` parameter.
+Items can be limited by using the `--items` parameter.
 
 ```
 #> swiftbackmeup backup --list-items
-+---------------+------------+-----------+-----------------+---------------------+-----------------------------+
-|    Database   |    Type    |    Host   | Swift Container | Swift Pseudo-Folder |        Subscriptions        |
-+---------------+------------+-----------+-----------------+---------------------+-----------------------------+
-|      db1      |  mariadb   | 127.0.0.1 |      backup     |         db1         | daily, now, monthly, weekly |
-| swiftbackmeup | postgresql |   local   |      backup     |    swiftbackmeup    | daily, now, monthly, weekly |
-+---------------+------------+-----------+-----------------+---------------------+-----------------------------+
++---------------+----------------------+-----------+-----------------+---------------------+-----------------------------+
+|      Item     |          Type        |    Host   | Swift Container | Swift Pseudo-Folder |        Subscriptions        |
++---------------+----------------------+-----------+-----------------+---------------------+-----------------------------+
+|      db1      |  databases/mariadb   | 127.0.0.1 |      backup     |         db1         | daily, now, monthly, weekly |
+| swiftbackmeup | databases/postgresql |   local   |      backup     |    swiftbackmeup    | daily, now, monthly, weekly |
++---------------+----------------------+-----------+-----------------+---------------------+-----------------------------+
 ```
 
 ```
-#> swiftbackmeup backup --list-items --databases db1
-+---------------+------------+-----------+-----------------+---------------------+-----------------------------+
-|    Database   |    Type    |    Host   | Swift Container | Swift Pseudo-Folder |        Subscriptions        |
-+---------------+------------+-----------+-----------------+---------------------+-----------------------------+
-|      db1      |  mariadb   | 127.0.0.1 |      backup     |         db1         | daily, now, monthly, weekly |
-+---------------+------------+-----------+-----------------+---------------------+-----------------------------+
+#> swiftbackmeup backup --list-items --items db1
++---------------+----------------------+-----------+-----------------+---------------------+-----------------------------+
+|      Item     |          Type        |    Host   | Swift Container | Swift Pseudo-Folder |        Subscriptions        |
++---------------+----------------------+-----------+-----------------+---------------------+-----------------------------+
+|      db1      |  databases/mariadb   | 127.0.0.1 |      backup     |         db1         | daily, now, monthly, weekly |
++---------------+----------------------+-----------+-----------------+---------------------+-----------------------------+
 ```
 
 
@@ -118,7 +118,8 @@ modes:
     unit: item
 
 backups:
-  - database: db1
+  - name: db1
+    database: db1
     subscriptions:
       - daily
       - now
@@ -139,7 +140,7 @@ This option allows one to list the items that would be purged if run without the
 ```
 #> swiftbackmeup backup --list
 +---------------+-----------------------------------------------------+----------------------------+
-|    Database   |                     Backup file                     |       Last Modified        |
+|      Item     |                     Backup file                     |       Last Modified        |
 +---------------+-----------------------------------------------------+----------------------------+
 |      db1      |           db1/db1_20160624054028.dump.sql           | 2016-06-24T09:40:29.719150 |
 |      db1      |           db1/db1_20160624063610.dump.sql           | 2016-06-24T10:36:12.295490 |
@@ -152,7 +153,7 @@ This option allows one to list the items that would be purged if run without the
 +---------------+-----------------------------------------------------+----------------------------+
 #> swiftbackmeup purge --noop --force
 +---------------+-----------------------------------------------------+----------------------------+---------------+
-|    Database   |                     Backup file                     |       Last Modified        |     Status    |
+|     Item      |                     Backup file                     |       Last Modified        |     Status    |
 +---------------+-----------------------------------------------------+----------------------------+---------------+
 |      db1      |           db1/db1_20160624054028.dump.sql           | 2016-06-24T09:40:29.719150 | Purged (noop) |
 |      db1      |           db1/db1_20160624063610.dump.sql           | 2016-06-24T10:36:12.295490 | Purged (noop) |
@@ -169,7 +170,7 @@ This options allows one not to have to answer the security question: "Are you su
 ```
 #> swiftbackmeup backup --list                                                                                                                 
 +---------------+-----------------------------------------------------+----------------------------+
-|    Database   |                     Backup file                     |       Last Modified        |
+|     Item      |                     Backup file                     |       Last Modified        |
 +---------------+-----------------------------------------------------+----------------------------+
 |      db1      |           db1/db1_20160624054028.dump.sql           | 2016-06-24T09:40:29.719150 |
 |      db1      |           db1/db1_20160624063610.dump.sql           | 2016-06-24T10:36:12.295490 |
@@ -182,7 +183,7 @@ This options allows one not to have to answer the security question: "Are you su
 +---------------+-----------------------------------------------------+----------------------------+
 #> swiftbackmeup purge --force
 +---------------+-----------------------------------------------------+----------------------------+--------+
-|    Database   |                     Backup file                     |       Last Modified        | Status |
+|     Item      |                     Backup file                     |       Last Modified        | Status |
 +---------------+-----------------------------------------------------+----------------------------+--------+
 |      db1      |           db1/db1_20160624054028.dump.sql           | 2016-06-24T09:40:29.719150 | Purged |
 |      db1      |           db1/db1_20160624063610.dump.sql           | 2016-06-24T10:36:12.295490 | Purged |
@@ -193,7 +194,7 @@ This options allows one not to have to answer the security question: "Are you su
 +---------------+-----------------------------------------------------+----------------------------+--------+
 #> swiftbackmeup backup --list
 +---------------+-----------------------------------------------------+----------------------------+
-|    Database   |                     Backup file                     |       Last Modified        |
+|     Item      |                     Backup file                     |       Last Modified        |
 +---------------+-----------------------------------------------------+----------------------------+
 |      db1      |           db1/db1_20160624063615.dump.sql           | 2016-06-24T10:36:17.117850 |
 | swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063616.dump.sql | 2016-06-24T10:36:17.923470 |
@@ -210,12 +211,12 @@ To work, it needs the name of the item to restore and the version from which to 
 ```
 #> swiftbackmeup backup --list
 +---------------+-----------------------------------------------------+----------------------------+
-|    Database   |                     Backup file                     |       Last Modified        |
+|      Item     |                     Backup file                     |       Last Modified        |
 +---------------+-----------------------------------------------------+----------------------------+
 |      db1      |           db1/db1_20160624063615.dump.sql           | 2016-06-24T10:36:17.117850 |
 | swiftbackmeup | swiftbackmeup/swiftbackmeup_20160624063616.dump.sql | 2016-06-24T10:36:17.923470 |
 +---------------+-----------------------------------------------------+----------------------------+
-#> swiftbackmeup restore --databases db1 --version db1/db1_20160624063615.dump.sql
+#> swiftbackmeup restore --items db1 --version db1/db1_20160624063615.dump.sql
 ```
 
 The previous example will restore the database `db1` to the dump remotely stored as `db1/db1_20160624063615.dump.sql`
@@ -281,7 +282,8 @@ Example:
 
 ```
 backups:
-  - database: mydatabase
+  - name: mydatabase
+    database: mydatabase
     subscriptions:
       - daily
     backup_filename_prefix: 'mydatabase_'
@@ -296,7 +298,8 @@ filename by specifying `backup_filename`
 
 ```
 backups:
-  - database: mydatabase
+  - name: mydatabase
+    database: mydatabase
     subscriptions:
       - daily
     backup_filename: 'mydatabase_backup.dump.gz'
@@ -366,15 +369,20 @@ When backuping PostgreSQL databases there are two modes of working:
 
 ```
 ---
-os_username: username
-os_password: password
-os_tenant_name: tenant_name
-os_auth_url: auth_url
+os_username: os_username
+os_password:  os_password
+os_tenant_name: os_tenant_name
+os_auth_url: os_auth_url
+
 store_type: swift
-create_container: True
-purge_container: False
 swift_container: backup
 swift_pseudofolder: example
+
+create_container: True
+purge_container: False
+
+output_directory: /var/tmp
+clean_local_copy: True
 
 mode:
   daily:
@@ -384,49 +392,60 @@ mode:
     retention: 4
     pattern: "%Y%m%d-%U"
   monthly:
-    retention: 6
+    retention: 
     pattern: "%Y%m"
   now:
     retention: 10
     pattern: "%Y%m%d%H%M%S"
 
-type: postgresql
-dump_options: -Z9 -Fc
-output_directory: /var/tmp
-clean_local_copy: True
 
 backups:
-  - database: swiftbackmeup
-    user: jdoe
-    password: apassword
-    host: 127.0.0.1
-    backup_filename_prefix: 'this_is_a_prefix'
-    backup_filename_suffix: '.dump.gz'
+
+  - name: mytestfile
+    type: file
+    path: /tmp/file
+    backup_filename_prefix: 'mytestfile_'
+    backup_filename_suffix: '.bk'
     subscriptions:
-      - daily
       - now
+      - daily
       - monthly
-      - weekly
 
-  - database: all
-    user: jdoe
-    password: apassword
-    host: 127.0.0.1
-    globals_only: True
-    schema_only: True
-    backup_filename_prefix: 'globals_schema_only'
-    backup_filename_suffix: '.dump.gz'
+  - name: mygitrepo
+    type: git
+    path: /srv/git/mygitrepo
+    branches: all
+    backup_filename_prefix: 'mygitrepo_'
+    backup_filename_suffix: '.bundle'
     subscriptions:
-      - daily
-
-  - database: wordpress
-    user: wordpress
-    password: wordpresspassword
-    host: 127.0.0.1
-    type: mariadb
-    backup_filename_prefix: 'wordpress_'
-    backup_filename_suffix: '.dump.gz'
-    subscriptions:
-      - daily
       - now
+      - daily
+      - monthly
+
+  - name: swiftbackmeup_mariadb
+    type: mariadb
+    database: swiftbackmeup
+    host: 127.0.0.1
+    user: root
+    password: passpass
+    backup_filename_prefix: 'swiftbackmeup_mariadb_'
+    backup_filename_suffix: '.dump.sql'
+    swift_pseudo_folder: swiftbackmeup_mariadb
+    subscriptions:
+      - now
+      - daily
+      - monthly
+
+  - name: swiftbackmeup_postgresql
+    type: postgresql
+    database: swiftbackmeup
+    backup_filename_prefix: 'swiftbackmeup_postgresql_'
+    dump_options: -Z9 -Fc
+    backup_filename_suffix: '.dump'
+    swift_pseudo_folder: swiftbackmeup_postgresql
+    subscriptions:
+      - now
+      - daily
+      - monthly
 ```
+

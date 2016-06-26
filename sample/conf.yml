@@ -1,13 +1,18 @@
-os_username: username
-os_password: password
-os_tenant_name: tenant
-os_auth_url: auth_url
+---
+os_username: os_username
+os_password:  os_password
+os_tenant_name: os_tenant_name
+os_auth_url: os_auth_url
 
 store_type: swift
+swift_container: backup
+swift_pseudofolder: example
+
 create_container: True
 purge_container: False
-swift_container: backup
-swift_pseudo_folder: example
+
+output_directory: /var/tmp
+clean_local_copy: True
 
 mode:
   daily:
@@ -23,28 +28,45 @@ mode:
     retention: 10
     pattern: "%Y%m%d%H%M%S"
 
-type: postgresql
-pg_dump_options: -Z9 -Fc
-output_directory: /var/tmp
-clean_local_copy: True
 
 backups:
-  - database: swiftbackmeup
-    backup_filename_prefix: 'final_test'
-    backup_filename_suffix: '.dump.gz'
-    subscriptions:
-      - daily
-      - now
-      - monthly
-      - weekly
 
-  - database: all
-    user: jdoe
-    password: apassword
-    host: AN.IP.ADDR.ESS
-    globals_only: True
-    schema_only: True
-    backup_filename_prefix: 'globals_schema_only'
-    backup_filename_suffix: '.dump.gz'
+  - name: mytestfile
+    type: file
+    path: /tmp/file
+    backup_filename_prefix: 'mytestfile_'
+    backup_filename_suffix: '.bk'
     subscriptions:
-      - daily
+      - now
+
+  - name: mygitrepo
+    type: git
+    path: /srv/git/mygitrepo
+    branches: all
+    backup_filename_prefix: 'mygitrepo_'
+    backup_filename_suffix: '.bundle'
+    subscriptions:
+      - now
+
+  - name: swiftbackmeup_mariadb
+    type: mariadb
+    database: swiftbackmeup
+    host: 127.0.0.1
+    user: root
+    password: passpass
+    backup_filename_prefix: 'swiftbackmeup_mariadb_'
+    backup_filename_suffix: '.dump.sql'
+    swift_pseudo_folder: swiftbackmeup_mariadb
+    subscriptions:
+      - now
+
+  - name: swiftbackmeup_postgresql
+    type: postgresql
+    database: swiftbackmeup
+    backup_filename_prefix: 'swiftbackmeup_postgresql_'
+    dump_options: -Z9 -Fc
+    backup_filename_suffix: '.dump'
+    swift_pseudo_folder: swiftbackmeup_postgresql
+    subscriptions:
+      - now
+
