@@ -73,7 +73,7 @@ class Swift(stores.Store):
                 backup_name_pattern = '%s/%s' % (pseudo_folder,
                                                  filename)
             else:
-                backup_name_pattern = pseudo_folder
+                backup_name_pattern = pseudo_folder or ''
                 if filename_prefix and filename_suffix:
                     backup_name_pattern += '/%s.*%s' % (filename_prefix,
                                                         filename_suffix)
@@ -86,7 +86,7 @@ class Swift(stores.Store):
             if filename:
                 backup_name_pattern = filename
             else:
-                backup_name_pattern = pseudo_folder
+                backup_name_pattern = pseudo_folder or ''
                 if filename_prefix and filename_suffix:
                     backup_name_pattern += '/%s.*%s' % (filename_prefix,
                                                         filename_suffix)

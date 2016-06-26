@@ -41,6 +41,10 @@ class PostgreSQL(databases.Database):
         return 'databases/postgresql'
 
 
+    def run(self):
+        super(PostgreSQL, self).run(with_intermediate_file=True)
+
+
     def build_restore_command(self, backup_filename):
         file_path = '%s/%s' % (self.output_directory, backup_filename)
         file_type = utils.get_file_type(file_path)
