@@ -16,12 +16,13 @@
 from prettytable import PrettyTable
 from swiftbackmeup import utils
 from swiftbackmeup.items.databases import postgresql, mariadb
-from swiftbackmeup.items.filesystems import file
+from swiftbackmeup.items.filesystems import file, git
 
 _FULL_TYPE = {
     'mariadb': 'databases/mariadb',
     'postgresql': 'databases/postgres',
     'file': 'filesystem/file',
+    'git': 'filesystem/git',
 }
 
 # If --list-items has been specified, list the backups items configured
@@ -63,6 +64,8 @@ def list_remote_backups(backups, options, modes):
                 cur_backup = mariadb.MariaDB(backup)
             elif backup['type'] == 'file':
                 cur_backup = file.File(backup)
+            elif backup['type'] == 'git':
+                cur_backup = git.Git(backup)
             
             for backup_item in cur_backup.list():
                 result[0][1].append(backup_item['item'])

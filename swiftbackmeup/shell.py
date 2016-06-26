@@ -52,6 +52,8 @@ def main():
                 cur_backup = mariadb.MariaDB(backup)
             elif backup['type'] == 'file':
                 cur_backup = file.File(backup)
+            elif backup['type'] == 'git':
+                cur_backup = git.Git(backup)
             if options.force:
                 cur_backup.restore(options.version)
             elif utils.query_yes_no('Are you sure you want to restore the backup?',
@@ -80,6 +82,8 @@ def main():
                     cur_backup = mariadb.MariaDB(backup)
                 elif backup['type'] == 'file':
                     cur_backup = file.File(backup)
+                elif backup['type'] == 'git':
+                    cur_backup = git.Git(backup)
                 purged_backups += cur_backup.purge(modes[options.mode], options.noop)
             lists.list_purged_backups(purged_backups, options.noop)
 
@@ -107,5 +111,7 @@ def main():
                     cur_backup = mariadb.MariaDB(backup)
                 elif backup['type'] == 'file':
                     cur_backup = file.File(backup)
+                elif backup['type'] == 'git':
+                    cur_backup = git.Git(backup)
                 cur_backup.run()
                 cur_backup.upload()

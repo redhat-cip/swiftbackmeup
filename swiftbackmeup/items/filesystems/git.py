@@ -13,15 +13,43 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from swiftbackmeup.items import filesystem
+from swiftbackmeup.items import filesystems
 
+import shutil
 
-class Git(filesystem.Filesystem):
+class Git(filesystems.Filesystem):
 
 
     def __init__(self, conf):
         super(Git, self).__init__(conf)
+        self.branches = conf.get('branches', '--all')
 
 
     def type(self):
         return 'filesystems/git'
+
+    
+    def run(self):
+        super(Git, self).run(cwd=self.path)
+
+
+    def build_dump_command(self):
+        if self.branches == 'all': 
+            self.branches = '--all'
+
+        command = 'git bundle create %s/%s %s' % (self.output_directory,
+                                                  self.backup_file,
+                                                  self.branches)
+        return command
+
+    def build_restore_command(self, backup_filename):
+        try:
+            shutil.rmtree(self.path)
+        except OSError:
+            raise
+ 
+        command = 'git clone %s/%s -b master %s' % (self.output_directory,
+                                                    backup_filename,
+                                                    self.path)
+
+        return command

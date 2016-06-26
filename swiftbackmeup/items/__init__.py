@@ -62,21 +62,26 @@ class Item(object):
         pass
 
 
-    def run(self):
+    def run(self, with_intermediate_file=False, cwd=None):
         """Method to run the backup command where it applies."""
 
         command = self.build_dump_command()
 
-        try:
-            backup_file_f = open('%s/%s' % (self.output_directory,
-                                            self.backup_file), 'w')
-        except IOError as exc:
-            raise
+        if with_intermediate_file:
+            try:
+                backup_file_f = open('%s/%s' % (self.output_directory,
+                                                self.backup_file), 'w')
+            except IOError as exc:
+                raise
 
-        p = subprocess.Popen(command.split(), stdout=backup_file_f,
-                             env=self.env)
-        p.wait()
-        backup_file_f.flush()
+            p = subprocess.Popen(command.split(), stdout=backup_file_f,
+                                 env=self.env, cwd=cwd)
+            p.wait()
+            backup_file_f.flush()
+        else:
+            FNULL = open(os.devnull, 'w')
+            p = subprocess.Popen(command.split(), env=self.env, cwd=cwd,
+                                 stdout=FNULL, stderr=subprocess.STDOUT)
 
 
     def restore(self, backup_filename):
@@ -85,7 +90,8 @@ class Item(object):
         self.store.get(self.swift_container, backup_filename,
                        self.output_directory)
         command = self.build_restore_command(backup_filename)
-        subprocess.Popen(command.split())
+        FNULL = open(os.devnull, 'w')
+        subprocess.Popen(command.split(), stdout=FNULL, stderr=subprocess.STDOUT)
         if self.clean_local_copy:
             self._clean_local_copy(backup_filename)
 
