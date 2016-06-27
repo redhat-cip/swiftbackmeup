@@ -256,7 +256,7 @@ Modes are defined in the configuration file, by default 4 modes come predefined.
 
 Modes understand for now only two parameters:
 
-  * `retention`: Number of days a backup should be kept, else purged.
+  * `retention`: Number of unit a backup should be kept, else purged.
   * `unit`: The unit the retention represent. Possible value: `day`, `item`. Default `day`.
   * `pattern`: Pattern that will be used in datetime.format later.
 
@@ -387,15 +387,19 @@ clean_local_copy: True
 mode:
   daily:
     retention: 7
+    unit: days
     pattern: "%Y%m%d"
   weekly:
-    retention: 4
+    retention: 28
+    unit: days
     pattern: "%Y%m%d-%U"
   monthly:
-    retention: 
+    retention: 31
+    unit: days
     pattern: "%Y%m"
   now:
     retention: 10
+    unit: items
     pattern: "%Y%m%d%H%M%S"
 
 
