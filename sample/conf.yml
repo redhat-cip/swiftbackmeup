@@ -17,15 +17,19 @@ clean_local_copy: True
 mode:
   daily:
     retention: 7
+    unit: day
     pattern: "%Y%m%d"
   weekly:
-    retention: 4
+    retention: 28
+    unit: day
     pattern: "%Y%m%d-%U"
   monthly:
-    retention: 6
+    retention: 31
+    unit: day
     pattern: "%Y%m"
   now:
     retention: 10
+    unit: item
     pattern: "%Y%m%d%H%M%S"
 
 
