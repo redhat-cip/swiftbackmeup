@@ -41,7 +41,7 @@ def main():
     configuration.verify_mandatory_parameter(global_configuration)
     backups = configuration.expand_configuration(global_configuration)
     backups = utils.filter_databases(options.items, backups)
-    modes = global_configuration.get('mode')
+    modes = global_configuration.get('modes')
 
     # swiftbackmeup restore ...
     if 'version' in options:
