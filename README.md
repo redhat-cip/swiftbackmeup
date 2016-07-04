@@ -376,7 +376,7 @@ os_auth_url: os_auth_url
 
 store_type: swift
 swift_container: backup
-swift_pseudofolder: example
+swift_pseudo_folder: example
 
 create_container: True
 purge_container: False
@@ -384,18 +384,18 @@ purge_container: False
 output_directory: /var/tmp
 clean_local_copy: True
 
-mode:
+modes:
   daily:
     retention: 7
-    unit: days
+    unit: day
     pattern: "%Y%m%d"
   weekly:
     retention: 28
-    unit: days
+    unit: day
     pattern: "%Y%m%d-%U"
   monthly:
     retention: 31
-    unit: days
+    unit: day
     pattern: "%Y%m"
   now:
     retention: 10
