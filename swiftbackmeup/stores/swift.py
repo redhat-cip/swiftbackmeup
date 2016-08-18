@@ -26,7 +26,7 @@ class Swift(stores.Store):
         self.os_username = conf.get('os_username',
                                     os.getenv('OS_USERNAME'))
         self.os_password = conf.get('os_password',
-                                    os.getenv('OS_USERNAME'))
+                                    os.getenv('OS_PASSWORD'))
         self.os_tenant_name = conf.get('os_tenant_name',
                                        os.getenv('OS_TENANT_NAME'))
         self.os_auth_url = conf.get('os_auth_url',
