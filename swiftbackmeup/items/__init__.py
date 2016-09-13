@@ -62,10 +62,13 @@ class Item(object):
         pass
 
 
-    def run(self, with_intermediate_file=False, cwd=None):
+    def run(self, with_intermediate_file=False, cwd=None, shell=False):
         """Method to run the backup command where it applies."""
 
         command = self.build_dump_command()
+
+        if not shell:
+            command = command.split()
 
         if with_intermediate_file:
             try:
@@ -74,33 +77,38 @@ class Item(object):
             except IOError as exc:
                 raise
 
-            p = subprocess.Popen(command.split(), stdout=backup_file_f,
-                                 env=self.env, cwd=cwd)
+            p = subprocess.Popen(command, stdout=backup_file_f,
+                                 env=self.env, cwd=cwd, shell=shell)
             p.wait()
             backup_file_f.flush()
         else:
             FNULL = open(os.devnull, 'w')
-            p = subprocess.Popen(command.split(), env=self.env, cwd=cwd,
-                                 stdout=FNULL, stderr=subprocess.STDOUT)
+            p = subprocess.Popen(command, env=self.env, cwd=cwd,
+                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                 shell=shell)
+            p.communicate()
 
 
-    def restore(self, backup_filename,with_intermediate_file=False):
+
+    def restore(self, backup_filename,with_intermediate_file=False, cwd=None, shell=False):
         """Method to restore the backup."""
 
         self.store.get(self.swift_container, backup_filename,
                        self.output_directory)
         command = self.build_restore_command(backup_filename)
 
+        if not shell:
+            command = command.split()
 
         if with_intermediate_file:
             file_path = '%s/%s' % (self.output_directory, backup_filename)
             backup_file_content = open(file_path, 'r').read()
 
-            p = subprocess.Popen(command.split(), stdin=subprocess.PIPE)
+            p = subprocess.Popen(command, stdin=subprocess.PIPE, cwd=cwd, shell=shell)
             p.communicate(backup_file_content)
         else:
             FNULL = open(os.devnull, 'w')
-            p = subprocess.Popen(command.split(), stdout=FNULL,
+            p = subprocess.Popen(command, stdout=FNULL, cwd=cwd, shell=shell,
                                  stderr=subprocess.STDOUT)
             p.wait()
 

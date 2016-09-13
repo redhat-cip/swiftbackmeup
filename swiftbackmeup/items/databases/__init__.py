@@ -23,6 +23,8 @@ class Database(items.Item):
         super(Database, self).__init__(conf)
         self.host = conf.get('host')
         self.user = conf.get('user')
+        self.ssl = conf.get('ssl')
+        self.port = conf.get('port')
         self.password = conf.get('password')
         self.database = conf.get('database')
         self.dump_options = conf.get('dump_options')

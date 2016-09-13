@@ -15,10 +15,11 @@
 
 from prettytable import PrettyTable
 from swiftbackmeup import utils
-from swiftbackmeup.items.databases import postgresql, mariadb
+from swiftbackmeup.items.databases import postgresql, mariadb, elasticsearch
 from swiftbackmeup.items.filesystems import file, git
 
 _FULL_TYPE = {
+    'elasticsearch': 'databases/elasticsearch',
     'mariadb': 'databases/mariadb',
     'postgresql': 'databases/postgres',
     'file': 'filesystem/file',
@@ -62,6 +63,8 @@ def list_remote_backups(backups, options, modes):
                 cur_backup = postgresql.PostgreSQL(backup)
             elif backup['type'] == 'mariadb':
                 cur_backup = mariadb.MariaDB(backup)
+            elif backup['type'] == 'elasticsearch':
+                cur_backup = elasticsearch.Elasticsearch(backup)
             elif backup['type'] == 'file':
                 cur_backup = file.File(backup)
             elif backup['type'] == 'git':

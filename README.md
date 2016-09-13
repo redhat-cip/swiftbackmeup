@@ -364,6 +364,16 @@ When backuping PostgreSQL databases there are two modes of working:
 | schema_only      | backup (the all db) | None    | Should --schema-only be passed to pg_dumpall      |
 | tablespaces_only | backup (the all db) | None    | Should --tablespaces-only be passed to pg_dumpall |
 
+#### ElasticSearch Specifics
+
+When backuping/restoring ElasticSearch index and/or cluster, one must previously configure the appropriate repository as specified per the [documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-snapshots.html)
+
+
+| Parameter           | Scope  | Default | Description                                             |
+|---------------------|--------|---------|---------------------------------------------------------|
+| repository          | backup | None    | The repository to save the dump to                      |
+| repository_path     | backup | None    | The path where the repository is hosted                 |
+| wait_for_completion | backup | False   | Should the command wait for completion before returning |
 
 ### Configuration file example
 
