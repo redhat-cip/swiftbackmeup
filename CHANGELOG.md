@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.0.5](https://github.com/redhat-cip/swiftbackmeup/tree/0.0.5)
+
+[Full Changelog](https://github.com/redhat-cip/swiftbackmeup/compare/0.0.3...0.0.5)
+
 ## [0.0.3](https://github.com/redhat-cip/swiftbackmeup/tree/0.0.3)
 
 [Full Changelog](https://github.com/redhat-cip/swiftbackmeup/compare/0.0.2...0.0.3)
