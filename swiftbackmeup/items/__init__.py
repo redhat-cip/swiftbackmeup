@@ -108,7 +108,7 @@ class Item(object):
             self._clean_local_copy(backup_filename)
 
 
-    def purge(self, mode, noop=False):
+    def purge(self, modes, selected_mode, noop=False):
         """Method to purge the remote backups."""
 
         backups = self.store.list(self.name, self.type(),
@@ -117,6 +117,19 @@ class Item(object):
                                   self.swift_pseudo_folder,
                                   self.backup_filename_prefix,
                                   self.backup_filename_suffix)
+
+        mode = modes[selected_mode]
+
+        backups_match = []
+        for backup in backups:
+            pattern = backup['filename'].replace('%s/%s' % (self.swift_pseudo_folder,
+                                                            self.backup_filename_prefix), '').replace(self.backup_filename_suffix, '')
+            try:
+                datetime.datetime.strptime(pattern, mode['pattern'])
+                backups_match.append(backup)
+            except ValueError:
+                pass
+        backups = backups_match
 
         if mode['unit'] == 'item':
             if len(backups) > mode['retention']:

@@ -84,7 +84,7 @@ def main():
                     cur_backup = file.File(backup)
                 elif backup['type'] == 'git':
                     cur_backup = git.Git(backup)
-                purged_backups += cur_backup.purge(modes[options.mode], options.noop)
+                purged_backups += cur_backup.purge(modes, options.mode, options.noop)
             lists.list_purged_backups(purged_backups, options.noop)
 
     # swiftbackmeup backup ...
