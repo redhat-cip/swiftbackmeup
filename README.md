@@ -316,6 +316,7 @@ The below section aims to explain every parameter of the configuration file
 | os_username         | global         | None    | OpenStack Username                                                |
 | os_password         | global         | None    | OpenStack Password                                                |
 | os_tenant_name      | global         | None    | OpenStack Tenant Name                                             |
+| os_region_name      | global         | None    | OpenStack Region Name                                             |
 | os_auth_url         | global         | None    | OpenStack Authentication URL                                      |
 | store_type          | global, backup | None    | The store type to upload backup to (available: swift)             |
 | create_container    | global, backup | True    | If the container does not exist, should it be created             |
