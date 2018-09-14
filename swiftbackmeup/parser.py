@@ -15,57 +15,43 @@
 
 import argparse
 
+
 def parse():
 
     parser = argparse.ArgumentParser(description='swiftbackmeup')
 
-    parser.add_argument('--conf',
-        help='Path to configuration file')
-
+    parser.add_argument('--conf', help='Path to configuration file')
 
     subparsers = parser.add_subparsers(help='commands')
 
-    backup_parser = subparsers.add_parser('backup', help='backup configured items')
-    backup_parser.add_argument('--mode',
-        default='now',
-        help='Mode under which the script will be run')
-    backup_parser.add_argument('--list',
-        action='store_true',
-        help='List all remote backups')
-    backup_parser.add_argument('--list-items',
-        action='store_true',
-        help='List all currently configured backups')
-    backup_parser.add_argument('--items',
-        action='append',
-        nargs='*',
-        help='Items list to backup')
+    backup_parser = subparsers.add_parser('backup',
+                                          help='backup configured items')
+    backup_parser.add_argument('--mode', default='now',
+                               help='Mode under which the script will be run')
+    backup_parser.add_argument('--list', action='store_true',
+                               help='List all remote backups')
+    backup_parser.add_argument('--list-items', action='store_true',
+                               help='List all currently configured backups')
+    backup_parser.add_argument('--items', action='append', nargs='*',
+                               help='Items list to backup')
 
     purge_parser = subparsers.add_parser('purge', help='purge stored backups')
-    purge_parser.add_argument('--noop',
-        action='store_true',
-        help='List the backups to be purged, but don\'t purge them')
-    purge_parser.add_argument('--force',
-        action='store_true',
-        help='Force answer yes to security question')
-    purge_parser.add_argument('--items',
-        action='append',
-        nargs='*',
-        help='Items backups to purge')
-    purge_parser.add_argument('--mode',
-        default='now',
-        help='Mode under which the script will be run')
+    purge_parser.add_argument('--noop', action='store_true',
+                              help='List the backups to be purged, but don\'t purge them')  # noqa
+    purge_parser.add_argument('--force', action='store_true',
+                              help='Force answer yes to security question')
+    purge_parser.add_argument('--items', action='append', nargs='*',
+                              help='Items backups to purge')
+    purge_parser.add_argument('--mode', default='now',
+                              help='Mode under which the script will be run')
 
-    restore_parser = subparsers.add_parser('restore', help='restore item from remote backups')
-    restore_parser.add_argument('--version',
-        default='latest',
-        help='name of the backup to restore')
-    restore_parser.add_argument('--items',
-        action='append',
-        nargs='*',
-        help='Items to restore')
-    restore_parser.add_argument('--force',
-        action='store_true',
-        help='Force answer yes to security question')
+    restore_parser = subparsers.add_parser('restore', help='restore item from remote backups')  # noqa
+    restore_parser.add_argument('--version', default='latest',
+                                help='name of the backup to restore')
+    restore_parser.add_argument('--items', action='append', nargs='*',
+                                help='Items to restore')
+    restore_parser.add_argument('--force', action='store_true',
+                                help='Force answer yes to security question')
 
     options = parser.parse_args()
     normalize_items_parameter(options)

@@ -20,6 +20,7 @@ import os
 import re
 import swiftclient
 
+
 class Swift(stores.Store):
 
     def __init__(self, conf):
@@ -36,7 +37,6 @@ class Swift(stores.Store):
                                                   os.getenv('OS_REGION_NAME'))
         self.connection = self.get_connection()
 
-
     def get_connection(self):
         return swiftclient.client.Connection(auth_version='2',
                                              user=self.os_username,
@@ -45,13 +45,13 @@ class Swift(stores.Store):
                                              os_options=self.os_options,
                                              authurl=self.os_auth_url)
 
-
     def delete(self, container, filename):
         try:
             self.connection.delete_object(container, filename)
-        except swiftclient.exceptions.ClientException as exc:
-            raise exceptions.StoreExceptions('An error occured while deleting %s' % filename)
-
+        except swiftclient.exceptions.ClientException:
+            raise exceptions.StoreExceptions(
+                'An error occured while deleting %s' % filename
+            )
 
     def get(self, container, filename, output_directory):
         try:
@@ -59,18 +59,21 @@ class Swift(stores.Store):
                                                                     filename)
         except swiftclient.exceptions.ClientException as exc:
             if exc.http_reason == 'Not Found':
-                raise exceptions.StoreExceptions('%s: File not found in store' % filename)
+                raise exceptions.StoreExceptions(
+                    '%s: File not found in store' % filename
+                )
 
-        backup_directory = os.path.dirname('%s/%s' % (output_directory, filename))
+        backup_directory = os.path.dirname(
+            '%s/%s' % (output_directory, filename)
+        )
         if not os.path.exists(backup_directory):
             os.makedirs(backup_directory)
 
         with open('%s/%s' % (output_directory, filename), 'w') as backup:
             backup.write(obj_contents)
 
-
-    def list(self, item, item_type, container, filename=None, pseudo_folder=None,
-             filename_prefix=None, filename_suffix=None):
+    def list(self, item, item_type, container, filename=None,
+             pseudo_folder=None, filename_prefix=None, filename_suffix=None):
 
         if pseudo_folder:
             if filename:
@@ -93,7 +96,7 @@ class Swift(stores.Store):
                 backup_name_pattern = ''
                 if filename_prefix and filename_suffix:
                     backup_name_pattern += '%s.*%s' % (filename_prefix,
-                                                        filename_suffix)
+                                                       filename_suffix)
                 elif filename_prefix and not filename_suffix:
                     backup_name_pattern += '%s.*' % filename_prefix
                 elif not filename_prefix and filename_suffix:
@@ -110,7 +113,6 @@ class Swift(stores.Store):
                                'filename': m.group(0),
                                'last-modified': backup['last_modified']})
         return result
-
 
     def upload(self, container, file_path, pseudo_folder=None,
                create_container=True):

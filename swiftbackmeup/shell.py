@@ -17,8 +17,8 @@ from swiftbackmeup import configuration
 from swiftbackmeup import parser
 from swiftbackmeup import utils
 from swiftbackmeup import lists
-from swiftbackmeup.items.databases import *
-from swiftbackmeup.items.filesystems import *
+from swiftbackmeup.items.databases import *  # noqa
+from swiftbackmeup.items.filesystems import *  # noqa
 
 
 _CONF = {
@@ -28,6 +28,7 @@ _CONF = {
 }
 
 _METHODS = ['list', 'list_items']
+
 
 def main():
 
@@ -47,17 +48,16 @@ def main():
     if 'version' in options:
         for backup in backups:
             if backup['type'] == 'postgresql':
-                cur_backup = postgresql.PostgreSQL(backup)
+                cur_backup = postgresql.PostgreSQL(backup)  # noqa
             elif backup['type'] == 'mariadb':
-                cur_backup = mariadb.MariaDB(backup)
+                cur_backup = mariadb.MariaDB(backup)  # noqa
             elif backup['type'] == 'file':
                 cur_backup = file.File(backup)
             elif backup['type'] == 'git':
-                cur_backup = git.Git(backup)
+                cur_backup = git.Git(backup)  # noqa
             if options.force:
                 cur_backup.restore(options.version)
-            elif utils.query_yes_no('Are you sure you want to restore the backup?',
-                                  default='no'):
+            elif utils.query_yes_no('Are you sure you want to restore the backup?', default='no'):  # noqa
                 cur_backup.restore(options.version)
             else:
                 print 'Exiting without restoring the database'
@@ -69,22 +69,22 @@ def main():
 
         if options.force:
             purge = True
-        elif not options.force and utils.query_yes_no('Are you sure you want to purge the backups?',
-                                                    default='no'):
+        elif not options.force and utils.query_yes_no('Are you sure you want to purge the backups?', default='no'):  # noqa
             purge = True
         else:
             print 'Exiting without purging the backups'
         if purge:
             for backup in backups:
                 if backup['type'] == 'postgresql':
-                    cur_backup = postgresql.PostgreSQL(backup)
+                    cur_backup = postgresql.PostgreSQL(backup)  # noqa
                 elif backup['type'] == 'mariadb':
-                    cur_backup = mariadb.MariaDB(backup)
+                    cur_backup = mariadb.MariaDB(backup)  # noqa
                 elif backup['type'] == 'file':
                     cur_backup = file.File(backup)
                 elif backup['type'] == 'git':
-                    cur_backup = git.Git(backup)
-                purged_backups += cur_backup.purge(modes, options.mode, options.noop)
+                    cur_backup = git.Git(backup)  # noqa
+                purged_backups += cur_backup.purge(modes, options.mode,
+                                                   options.noop)
             lists.list_purged_backups(purged_backups, options.noop)
 
     # swiftbackmeup backup ...
@@ -100,18 +100,17 @@ def main():
                     lists.list_remote_backups(backups, options, modes)
                 return
 
-
         for backup in backups:
             if options.mode in backup['subscriptions']:
                 backup['filename'] = utils.build_filename(backup,
                                                           modes[options.mode])
                 if backup['type'] == 'postgresql':
-                    cur_backup = postgresql.PostgreSQL(backup)
+                    cur_backup = postgresql.PostgreSQL(backup)  # noqa
                 elif backup['type'] == 'mariadb':
-                    cur_backup = mariadb.MariaDB(backup)
+                    cur_backup = mariadb.MariaDB(backup)  # noqa
                 elif backup['type'] == 'file':
                     cur_backup = file.File(backup)
                 elif backup['type'] == 'git':
-                    cur_backup = git.Git(backup)
+                    cur_backup = git.Git(backup)  # noqa
                 cur_backup.run()
                 cur_backup.upload()

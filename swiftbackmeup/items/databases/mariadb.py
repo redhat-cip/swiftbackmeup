@@ -15,26 +15,21 @@
 
 from swiftbackmeup.items import databases
 
-import subprocess
 
 class MariaDB(databases.Database):
 
     def __init__(self, conf):
         super(MariaDB, self).__init__(conf)
 
-
     def type(self):
         return 'databases/mariadb'
-
 
     def run(self):
         super(MariaDB, self).run(with_intermediate_file=True)
 
-
     def restore(self, backup_filename):
         super(MariaDB, self).restore(backup_filename,
                                      with_intermediate_file=True)
-
 
     def build_restore_command(self, backup_filename):
         command = 'mysql'
@@ -50,9 +45,7 @@ class MariaDB(databases.Database):
 
         return command
 
-
     def build_dump_command(self):
-
         command = 'mysqldump'
 
         if self.dump_options:

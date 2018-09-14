@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from prettytable import PrettyTable
 from swiftbackmeup import utils
 from swiftbackmeup.items.databases import postgresql, mariadb
 from swiftbackmeup.items.filesystems import file, git
@@ -24,6 +23,7 @@ _FULL_TYPE = {
     'file': 'filesystem/file',
     'git': 'filesystem/git',
 }
+
 
 # If --list-items has been specified, list the backups items configured
 # in the configuration file
@@ -66,7 +66,7 @@ def list_remote_backups(backups, options, modes):
                 cur_backup = file.File(backup)
             elif backup['type'] == 'git':
                 cur_backup = git.Git(backup)
-            
+
             for backup_item in cur_backup.list():
                 result[0][1].append(backup_item['item'])
                 result[1][1].append(backup_item['type'])

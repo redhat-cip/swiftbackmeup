@@ -16,13 +16,11 @@
 from swiftbackmeup.stores import swift
 
 import datetime
-import exceptions
 import os
 import subprocess
 
 
 class Item(object):
-
 
     def __init__(self, conf):
         self.name = conf.get('name')
@@ -45,7 +43,6 @@ class Item(object):
         self.swift_container = conf.get('swift_container')
         self.swift_pseudo_folder = conf.get('swift_pseudo_folder')
 
-
     def get_store(self, conf):
         """Method to retrieve a connection to the remote store."""
 
@@ -56,11 +53,9 @@ class Item(object):
 
         return store
 
-
     def type(self):
         """Method to retrieve the type object the backup was made from."""
         pass
-
 
     def run(self, with_intermediate_file=False, cwd=None):
         """Method to run the backup command where it applies."""
@@ -71,7 +66,7 @@ class Item(object):
             try:
                 backup_file_f = open('%s/%s' % (self.output_directory,
                                                 self.backup_file), 'w')
-            except IOError as exc:
+            except IOError:
                 raise
 
             p = subprocess.Popen(command.split(), stdout=backup_file_f,
@@ -83,14 +78,12 @@ class Item(object):
             p = subprocess.Popen(command.split(), env=self.env, cwd=cwd,
                                  stdout=FNULL, stderr=subprocess.STDOUT)
 
-
-    def restore(self, backup_filename,with_intermediate_file=False):
+    def restore(self, backup_filename, with_intermediate_file=False):
         """Method to restore the backup."""
 
         self.store.get(self.swift_container, backup_filename,
                        self.output_directory)
         command = self.build_restore_command(backup_filename)
-
 
         if with_intermediate_file:
             file_path = '%s/%s' % (self.output_directory, backup_filename)
@@ -107,7 +100,6 @@ class Item(object):
         if self.clean_local_copy:
             self._clean_local_copy(backup_filename)
 
-
     def purge(self, modes, selected_mode, noop=False):
         """Method to purge the remote backups."""
 
@@ -122,8 +114,7 @@ class Item(object):
 
         backups_match = []
         for backup in backups:
-            pattern = backup['filename'].replace('%s/%s' % (self.swift_pseudo_folder,
-                                                            self.backup_filename_prefix), '').replace(self.backup_filename_suffix, '')
+            pattern = backup['filename'].replace('%s/%s' % (self.swift_pseudo_folder, self.backup_filename_prefix), '').replace(self.backup_filename_suffix, '')  # noqa
             try:
                 datetime.datetime.strptime(pattern, mode['pattern'])
                 backups_match.append(backup)
@@ -139,7 +130,7 @@ class Item(object):
         else:
             tmp_backup = []
             for backup in backups:
-                if (datetime.datetime.now() - datetime.datetime.strptime(backup['last-modified'], '%Y-%m-%dT%H:%M:%S.%f')).days >= mode['retention']:
+                if (datetime.datetime.now() - datetime.datetime.strptime(backup['last-modified'], '%Y-%m-%dT%H:%M:%S.%f')).days >= mode['retention']:  # noqa
                     tmp_backup.append(backup)
             backups = tmp_backup
 
@@ -149,7 +140,6 @@ class Item(object):
 
         return backups
 
-
     def list(self):
         """Method to list the backups of a given item on the remote store."""
 
@@ -157,7 +147,6 @@ class Item(object):
                                self.backup_filename, self.swift_pseudo_folder,
                                self.backup_filename_prefix,
                                self.backup_filename_suffix)
-
 
     def upload(self):
         """Method to upload a backup of a given item on the remote store."""
@@ -168,16 +157,13 @@ class Item(object):
         if self.clean_local_copy:
             self._clean_local_copy(self.backup_file)
 
-
     def build_restore_command(self, backup_filename):
         """Method to build the restore command that will be run."""
         pass
 
-
     def build_dump_command(self):
         """Method to build the dump command that will be run."""
         pass
-
 
     def _clean_local_copy(self, backup_file=None):
 

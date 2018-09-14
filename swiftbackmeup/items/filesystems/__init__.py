@@ -18,7 +18,6 @@ from swiftbackmeup import items
 
 class Filesystem(items.Item):
 
-
     def __init__(self, conf):
         super(Filesystem, self).__init__(conf)
         self.path = conf.get('path')

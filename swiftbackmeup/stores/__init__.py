@@ -19,18 +19,14 @@ class Store(object):
     def __init__(self, conf):
         pass
 
-
     def delete(self):
         pass
-
 
     def get(self):
         pass
 
-
     def list(self):
         pass
-
 
     def upload(self):
         pass

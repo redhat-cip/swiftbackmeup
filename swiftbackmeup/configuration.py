@@ -30,16 +30,16 @@ def check_configuration_file_existence(configuration_file_path=None):
 
     if configuration_file_path:
         if not os.path.exists(configuration_file_path):
-            raise exceptions.ConfigurationExceptions('File %s does not exist' % configuration_file_path)
+            raise exceptions.ConfigurationExceptions('File %s does not exist' % configuration_file_path)  # noqa
         file_path = configuration_file_path
     elif os.getenv('SWIFTBACKMEUP_CONFIGURATION'):
         if not os.path.exists(os.getenv('SWIFTBACKMEUP_CONFIGURATION')):
-            raise exceptions.ConfigurationExceptions('File %s does not exist' % os.getenv('SWIFTBACKMEUP_CONFIGURATION'))
+            raise exceptions.ConfigurationExceptions('File %s does not exist' % os.getenv('SWIFTBACKMEUP_CONFIGURATION'))  # noqa
         file_path = os.getenv('SWIFTBACKMEUP_CONFIGURATION')
     else:
         if not os.path.exists('/etc/swiftbackmeup.conf'):
             raise exceptions.ConfigurationExceptions(
-                'File /etc/swiftbackmeup.conf does not exist (you could specify an alternate location using --conf)'
+                'File /etc/swiftbackmeup.conf does not exist (you could specify an alternate location using --conf)'  # noqa
             )
         file_path = '/etc/swiftbackmeup.conf'
 
@@ -83,26 +83,29 @@ def verify_mandatory_parameter(configuration):
 
     # Swift Parameters
     os_username = configuration.get('os_username', os.getenv('OS_USERNAME'))
-    os_password = configuration.get('os_password',os.getenv('OS_PASSWORD'))
-    os_tenant_name = configuration.get('os_tenant_name', os.getenv('OS_TENANT_NAME'))
-    os_region_name = configuration.get('os_region_name', os.getenv('OS_REGION_NAME'))
+    os_password = configuration.get('os_password', os.getenv('OS_PASSWORD'))
+    os_tenant_name = configuration.get(
+        'os_tenant_name', os.getenv('OS_TENANT_NAME')
+    )
+    os_region_name = configuration.get(
+        'os_region_name', os.getenv('OS_REGION_NAME')
+    )
     os_auth_url = configuration.get('os_auth_url', os.getenv('OS_AUTH_URL'))
 
     if not (os_username and os_password and os_tenant_name and
             os_auth_url and os_region_name):
-        raise exceptions.ConfigurationExceptions('One of the following parameter is not configured: os_username, os_password, os_tenant_name, os_auth_url, os_region_name')
+        raise exceptions.ConfigurationExceptions('One of the following parameter is not configured: os_username, os_password, os_tenant_name, os_auth_url, os_region_name')  # noqa
 
-    if (len([1 for backup in configuration['backups'] if 'swift_container' in backup]) != len(configuration['backups'])) and 'swift_container' not in configuration:
-        raise exceptions.ConfigurationExceptions('swift_container has not been specified for every backups and no global setting has been set')
-
+    if (len([1 for backup in configuration['backups'] if 'swift_container' in backup]) != len(configuration['backups'])) and 'swift_container' not in configuration:  # noqa
+        raise exceptions.ConfigurationExceptions('swift_container has not been specified for every backups and no global setting has been set')  # noqa
 
     # Backup Parameters
     if 'backups' not in configuration:
-        raise exceptions.ConfigurationExceptions('No backups field encountered')
+        raise exceptions.ConfigurationExceptions('No backups field encountered')  # noqa
 
     if len(configuration['backups']) == 0:
-        raise exceptions.ConfigurationExceptions('Backups has no backup configured')
+        raise exceptions.ConfigurationExceptions('Backups has no backup configured')  # noqa
 
     for backup in configuration['backups']:
         if 'name' not in backup:
-            raise exceptions.ConfigurationExceptions('A backup has the name field missing')
+            raise exceptions.ConfigurationExceptions('A backup has the name field missing')  # noqa

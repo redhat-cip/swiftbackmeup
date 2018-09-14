@@ -17,24 +17,21 @@ from swiftbackmeup.items import filesystems
 
 import shutil
 
-class Git(filesystems.Filesystem):
 
+class Git(filesystems.Filesystem):
 
     def __init__(self, conf):
         super(Git, self).__init__(conf)
         self.branches = conf.get('branches', '--all')
 
-
     def type(self):
         return 'filesystems/git'
 
-    
     def run(self):
         super(Git, self).run(cwd=self.path)
 
-
     def build_dump_command(self):
-        if self.branches == 'all': 
+        if self.branches == 'all':
             self.branches = '--all'
 
         command = 'git bundle create %s/%s %s' % (self.output_directory,
@@ -47,7 +44,7 @@ class Git(filesystems.Filesystem):
             shutil.rmtree(self.path)
         except OSError:
             pass
- 
+
         command = 'git clone %s/%s -b master %s' % (self.output_directory,
                                                     backup_filename,
                                                     self.path)

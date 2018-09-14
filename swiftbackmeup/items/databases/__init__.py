@@ -18,7 +18,6 @@ from swiftbackmeup import items
 
 class Database(items.Item):
 
-
     def __init__(self, conf):
         super(Database, self).__init__(conf)
         self.host = conf.get('host')
@@ -26,4 +25,3 @@ class Database(items.Item):
         self.password = conf.get('password')
         self.database = conf.get('database')
         self.dump_options = conf.get('dump_options')
-

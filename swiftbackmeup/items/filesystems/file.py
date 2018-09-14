@@ -18,22 +18,17 @@ from swiftbackmeup.items import filesystems
 
 class File(filesystems.Filesystem):
 
-
     def __init__(self, conf):
         super(File, self).__init__(conf)
-
 
     def type(self):
         return 'filesystems/file'
 
-
     def run(self):
         super(File, self).run(with_intermediate_file=True)
 
-
     def build_dump_command(self):
         return 'cat %s' % self.path
-
 
     def build_restore_command(self, backup_filename):
         return 'cp -p %s/%s %s' % (self.output_directory,
