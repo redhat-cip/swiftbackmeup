@@ -122,12 +122,10 @@ class Swift(stores.Store):
             if exc.http_reason == 'Not Found' and create_container:
                 self.connection.put_container(container)
 
-        backup_file_content = open(file_path, 'r').read()
-
         if pseudo_folder:
             swift_path = '%s/%s' % (pseudo_folder, os.path.basename(file_path))
         else:
             swift_path = os.path.basename(file_path)
 
-        self.connection.put_object(container, swift_path,
-                                   backup_file_content)
+        with open(file_path, 'rb') as fd:
+            self.connection.put_object(container, swift_path, contents=fd)
