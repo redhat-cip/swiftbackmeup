@@ -17,17 +17,17 @@ from swiftbackmeup import configuration
 from swiftbackmeup import parser
 from swiftbackmeup import utils
 from swiftbackmeup import lists
-from swiftbackmeup.items.databases import *  # noqa
-from swiftbackmeup.items.filesystems import *  # noqa
+from swiftbackmeup.items.databases import *  # noqa: F403
+from swiftbackmeup.items.filesystems import *  # noqa: F403
 
 
 _CONF = {
-    'clean_local_copy': True,
-    'create_container': True,
-    'purge_backup': False,
+    "clean_local_copy": True,
+    "create_container": True,
+    "purge_backup": False,
 }
 
-_METHODS = ['list', 'list_items']
+_METHODS = ["list", "list_items"]
 
 
 def main():
@@ -35,56 +35,58 @@ def main():
     options = parser.parse()
 
     if options.conf:
-        _CONF['file_path'] = options.conf
+        _CONF["file_path"] = options.conf
 
     global_configuration = configuration.load_configuration(_CONF)
 
-    configuration.verify_mandatory_parameter(global_configuration)
     backups = configuration.expand_configuration(global_configuration)
     backups = utils.filter_databases(options.items, backups)
-    modes = global_configuration.get('modes')
+    modes = global_configuration.get("modes")
 
     # swiftbackmeup restore ...
-    if 'version' in options:
+    if "version" in options:
         for backup in backups:
-            if backup['type'] == 'postgresql':
-                cur_backup = postgresql.PostgreSQL(backup)  # noqa
-            elif backup['type'] == 'mariadb':
-                cur_backup = mariadb.MariaDB(backup)  # noqa
-            elif backup['type'] == 'file':
-                cur_backup = file.File(backup)
-            elif backup['type'] == 'git':
-                cur_backup = git.Git(backup)  # noqa
+            if backup["type"] == "postgresql":
+                cur_backup = postgresql.PostgreSQL(backup)  # noqa: F405
+            elif backup["type"] == "mariadb":
+                cur_backup = mariadb.MariaDB(backup)  # noqa: F405
+            elif backup["type"] == "file":
+                cur_backup = file.File(backup)  # noqa: F405
+            elif backup["type"] == "git":
+                cur_backup = git.Git(backup)  # noqa: F405
             if options.force:
                 cur_backup.restore(options.version)
-            elif utils.query_yes_no('Are you sure you want to restore the backup?', default='no'):  # noqa
+            elif utils.query_yes_no(
+                "Are you sure you want to restore the backup?", default="no"
+            ):
                 cur_backup.restore(options.version)
             else:
-                print 'Exiting without restoring the database'
+                print("Exiting without restoring the database")
 
     # swiftbackmeup purge ...
-    elif 'noop' in options:
+    elif "noop" in options:
         purge = False
         purged_backups = []
 
         if options.force:
             purge = True
-        elif not options.force and utils.query_yes_no('Are you sure you want to purge the backups?', default='no'):  # noqa
+        elif not options.force and utils.query_yes_no(
+            "Are you sure you want to purge the backups?", default="no"
+        ):
             purge = True
         else:
-            print 'Exiting without purging the backups'
+            print("Exiting without purging the backups")
         if purge:
             for backup in backups:
-                if backup['type'] == 'postgresql':
-                    cur_backup = postgresql.PostgreSQL(backup)  # noqa
-                elif backup['type'] == 'mariadb':
-                    cur_backup = mariadb.MariaDB(backup)  # noqa
-                elif backup['type'] == 'file':
-                    cur_backup = file.File(backup)
-                elif backup['type'] == 'git':
-                    cur_backup = git.Git(backup)  # noqa
-                purged_backups += cur_backup.purge(modes, options.mode,
-                                                   options.noop)
+                if backup["type"] == "postgresql":
+                    cur_backup = postgresql.PostgreSQL(backup)  # noqa: F405
+                elif backup["type"] == "mariadb":
+                    cur_backup = mariadb.MariaDB(backup)  # noqa: F405
+                elif backup["type"] == "file":
+                    cur_backup = file.File(backup)  # noqa: F405
+                elif backup["type"] == "git":
+                    cur_backup = git.Git(backup)  # noqa: F405
+                purged_backups += cur_backup.purge(modes, options.mode, options.noop)
             lists.list_purged_backups(purged_backups, options.noop)
 
     # swiftbackmeup backup ...
@@ -94,23 +96,22 @@ def main():
         #
         for method in _METHODS:
             if getattr(options, method):
-                if method == 'list_items':
+                if method == "list_items":
                     lists.list_items(backups, options)
-                elif method == 'list':
+                elif method == "list":
                     lists.list_remote_backups(backups, options, modes)
                 return
 
         for backup in backups:
-            if options.mode in backup['subscriptions']:
-                backup['filename'] = utils.build_filename(backup,
-                                                          modes[options.mode])
-                if backup['type'] == 'postgresql':
-                    cur_backup = postgresql.PostgreSQL(backup)  # noqa
-                elif backup['type'] == 'mariadb':
-                    cur_backup = mariadb.MariaDB(backup)  # noqa
-                elif backup['type'] == 'file':
-                    cur_backup = file.File(backup)
-                elif backup['type'] == 'git':
-                    cur_backup = git.Git(backup)  # noqa
+            if options.mode in backup["subscriptions"]:
+                backup["filename"] = utils.build_filename(backup, modes[options.mode])
+                if backup["type"] == "postgresql":
+                    cur_backup = postgresql.PostgreSQL(backup)  # noqa: F405
+                elif backup["type"] == "mariadb":
+                    cur_backup = mariadb.MariaDB(backup)  # noqa: F405
+                elif backup["type"] == "file":
+                    cur_backup = file.File(backup)  # noqa: F405
+                elif backup["type"] == "git":
+                    cur_backup = git.Git(backup)  # noqa: F405
                 cur_backup.run()
                 cur_backup.upload()
