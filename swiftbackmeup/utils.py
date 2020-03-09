@@ -16,6 +16,7 @@
 from prettytable import PrettyTable
 
 import datetime
+import six
 import subprocess
 import sys
 
@@ -38,7 +39,7 @@ def output_informations(data):
     x = PrettyTable()
     for column in data:
         x.add_column(column[0], column[1])
-    print x
+    print(x)
 
 
 def filter_databases(databases, backups):
@@ -79,6 +80,8 @@ def query_yes_no(question, default="yes"):
 
     while True:
         sys.stdout.write(question + prompt)
+        if six.PY3:
+            raw_input = input
         choice = raw_input().lower()
         if default is not None and choice == '':
             return valid[default]
