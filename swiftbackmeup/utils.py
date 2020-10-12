@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2016 Yanis Guenane <yguenane@redhat.com>
 # Author: Yanis Guenane <yguenane@redhat.com>
 #
@@ -13,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from builtins import input
 from prettytable import PrettyTable
 
 import datetime
-import six
 import subprocess
 import sys
 
@@ -80,9 +81,7 @@ def query_yes_no(question, default="yes"):
 
     while True:
         sys.stdout.write(question + prompt)
-        if six.PY3:
-            raw_input = input
-        choice = raw_input().lower()
+        choice = input().lower()
         if default is not None and choice == '':
             return valid[default]
         elif choice in valid:

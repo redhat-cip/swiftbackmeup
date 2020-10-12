@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright 2016 Yanis Guenane <yguenane@redhat.com>
 # Author: Yanis Guenane <yguenane@redhat.com>
 #

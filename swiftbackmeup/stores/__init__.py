@@ -14,6 +14,9 @@
 # limitations under the License.
 
 
+from builtins import object
+
+
 class Store(object):
 
     def __init__(self, conf):
