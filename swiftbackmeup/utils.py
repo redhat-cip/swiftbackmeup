@@ -14,9 +14,9 @@
 # limitations under the License.
 
 from prettytable import PrettyTable
+from six.moves import input
 
 import datetime
-import six
 import subprocess
 import sys
 
@@ -80,9 +80,7 @@ def query_yes_no(question, default="yes"):
 
     while True:
         sys.stdout.write(question + prompt)
-        if six.PY3:
-            raw_input = input
-        choice = raw_input().lower()
+        choice = input().lower()
         if default is not None and choice == '':
             return valid[default]
         elif choice in valid:
