@@ -96,7 +96,7 @@ class PostgreSQL(databases.Database):
                 % self.database
             )  # noqa
 
-        for param in _PARAMS.keys():
+        for param in list(_PARAMS.keys()):
             if getattr(self, param, None):
                 command += " %s" % _PARAMS[param]
 
