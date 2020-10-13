@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07cd2561_f3df648c",
+        "filename": "swiftbackmeup/exceptions.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 28
+      },
+      "writtenOn": "2020-10-13T09:07:50Z",
+      "side": 1,
+      "message": "why ?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 37
+      },
+      "revId": "681241bbe0d7c938a113138d5ace99bb14340ad2",
+      "serverId": "6c1dc8ef-8b94-40e4-bd83-c2359d45ecc0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed63fe6c_334cbbd4",
+        "filename": "swiftbackmeup/items/__init__.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 28
+      },
+      "writtenOn": "2020-10-13T09:07:50Z",
+      "side": 1,
+      "message": "py2: nope\npy3: is that even necessary ?",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 27
+      },
+      "revId": "681241bbe0d7c938a113138d5ace99bb14340ad2",
+      "serverId": "6c1dc8ef-8b94-40e4-bd83-c2359d45ecc0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f9b6c75_4db15f86",
+        "filename": "swiftbackmeup/shell.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 28
+      },
+      "writtenOn": "2020-10-13T09:07:50Z",
+      "side": 1,
+      "message": "why?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 37
+      },
+      "revId": "681241bbe0d7c938a113138d5ace99bb14340ad2",
+      "serverId": "6c1dc8ef-8b94-40e4-bd83-c2359d45ecc0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e6b47a9_42df984e",
+        "filename": "swiftbackmeup/stores/__init__.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 28
+      },
+      "writtenOn": "2020-10-13T09:07:50Z",
+      "side": 1,
+      "message": "why ?\n\npy2: \"ImportError: No module named builtins\"\npy3: is that even necessary ?",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 27
+      },
+      "revId": "681241bbe0d7c938a113138d5ace99bb14340ad2",
+      "serverId": "6c1dc8ef-8b94-40e4-bd83-c2359d45ecc0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2011544d_0c13c8e8",
+        "filename": "swiftbackmeup/utils.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 28
+      },
+      "writtenOn": "2020-10-13T09:07:50Z",
+      "side": 1,
+      "message": "why ?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 37
+      },
+      "revId": "681241bbe0d7c938a113138d5ace99bb14340ad2",
+      "serverId": "6c1dc8ef-8b94-40e4-bd83-c2359d45ecc0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6eabb5d_4b9fc1ac",
+        "filename": "swiftbackmeup/utils.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 28
+      },
+      "writtenOn": "2020-10-13T09:07:50Z",
+      "side": 1,
+      "message": "why ?\n\ndoesn\u0027t seem to work with py2 \"ImportError: No module named builtins\"",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 26
+      },
+      "revId": "681241bbe0d7c938a113138d5ace99bb14340ad2",
+      "serverId": "6c1dc8ef-8b94-40e4-bd83-c2359d45ecc0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "378d13f4_a9206adf",
+        "filename": "swiftbackmeup/utils.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 28
+      },
+      "writtenOn": "2020-10-13T09:07:50Z",
+      "side": 1,
+      "message": "does not do what you think in py2",
+      "range": {
+        "startLine": 84,
+        "startChar": 8,
+        "endLine": 84,
+        "endChar": 32
+      },
+      "revId": "681241bbe0d7c938a113138d5ace99bb14340ad2",
+      "serverId": "6c1dc8ef-8b94-40e4-bd83-c2359d45ecc0",
+      "unresolved": false
+    }
+  ]
+}
