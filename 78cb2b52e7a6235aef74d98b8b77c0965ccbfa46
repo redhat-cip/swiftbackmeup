@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70c69487_db8eeb42",
+        "filename": "swiftbackmeup/utils.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 28
+      },
+      "writtenOn": "2020-10-13T09:40:56Z",
+      "side": 1,
+      "message": "This still needs to use raw_input() for py2",
+      "range": {
+        "startLine": 82,
+        "startChar": 8,
+        "endLine": 82,
+        "endChar": 32
+      },
+      "revId": "78cb2b52e7a6235aef74d98b8b77c0965ccbfa46",
+      "serverId": "6c1dc8ef-8b94-40e4-bd83-c2359d45ecc0",
+      "unresolved": false
+    }
+  ]
+}
